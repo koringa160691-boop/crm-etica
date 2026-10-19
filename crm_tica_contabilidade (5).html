@@ -1,0 +1,2888 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRM Ética Contabilidade | Vendas, MRR & Serviços</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Estilos de impressão profissional A4 para Propostas */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-proposal, #printable-proposal * {
+        visibility: visible;
+      }
+      #printable-proposal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 24px;
+        background: white !important;
+        box-shadow: none !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased">
+
+  <!-- TELA DE LOGIN & SEGURANÇA (MODAL OBRIGATÓRIO DE ACESSO) -->
+  <div id="login-gate" class="fixed inset-0 z-50 bg-[#172434] flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border border-slate-200 relative overflow-hidden">
+      <!-- Barra decorativa bordô -->
+      <div class="absolute top-0 left-0 right-0 h-2 bg-[#9E1B2F]"></div>
+
+      <!-- Logotipo & Cabeçalho -->
+      <div class="text-center mb-6 pt-2">
+        <div class="w-14 h-14 rounded-2xl bg-[#9E1B2F] text-white flex items-center justify-center mx-auto shadow-md mb-3 border border-white/20">
+          <i class="fa-solid fa-scale-balanced text-2xl"></i>
+        </div>
+        <h2 class="font-black text-2xl text-[#1e2e42] tracking-tight">ÉTICA CONTABILIDADE</h2>
+        <span class="text-xs font-bold text-[#9E1B2F] tracking-widest uppercase block mt-0.5">Acesso ao CRM & Comercial</span>
+        <p class="text-[11px] text-slate-400 font-medium mt-1">Sincronização em Nuvem em Tempo Real</p>
+      </div>
+
+      <!-- Mensagem de Erro de Login -->
+      <div id="login-error-msg" class="hidden mb-4 bg-rose-50 border border-rose-200 text-rose-700 text-xs px-3 py-2 rounded-xl flex items-center gap-2 font-medium">
+        <i class="fa-solid fa-circle-exclamation text-rose-500"></i>
+        <span id="login-error-text">Usuário ou senha incorretos.</span>
+      </div>
+
+      <!-- Formulário de Login -->
+      <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Selecione o Usuário / Vendedor:</label>
+          <div class="relative">
+            <select id="login-user-select" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#9E1B2F] focus:bg-white text-xs">
+              <option value="rodrigo">Rodrigo Abdon (Comercial)</option>
+              <option value="jose">José Marciano (Comercial)</option>
+              <option value="diretoria">Diretoria / Geral (Todos)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Senha de Acesso:</label>
+          <div class="relative">
+            <input type="password" id="login-password" required placeholder="Digite sua senha..." class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-3.5 pr-10 py-2.5 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#9E1B2F] focus:bg-white text-xs">
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600">
+              <i id="password-toggle-icon" class="fa-regular fa-eye text-sm"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" id="login-remember-me" checked class="rounded border-slate-300 text-[#9E1B2F] focus:ring-[#9E1B2F]">
+            <span>Manter conectado neste aparelho</span>
+          </label>
+        </div>
+
+        <button type="submit" class="w-full bg-[#9E1B2F] hover:bg-[#861626] text-white font-black text-sm py-3 rounded-xl shadow-lg shadow-rose-900/20 transition active:scale-[0.98] flex items-center justify-center gap-2 mt-2">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span>Entrar no Sistema</span>
+        </button>
+      </form>
+
+      <!-- Rodapé do Card de Login -->
+      <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
+        <span class="flex items-center gap-1"><i class="fa-solid fa-lock text-emerald-500"></i> Acesso Protegido</span>
+        <span>Base Sincronizada 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast-notification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-slate-700">
+    <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+    <span id="toast-message" class="text-sm font-semibold">Operação realizada com sucesso!</span>
+  </div>
+
+  <!-- HEADER INSTITUCIONAL ÉTICA CONTABILIDADE -->
+  <header class="bg-[#1e2e42] text-white border-b-4 border-[#9E1B2F] sticky top-0 z-40 shadow-lg">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Logo Oficial Ética Contabilidade -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('fila')">
+        <div id="header-custom-logo-container" class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-[#9E1B2F] flex items-center justify-center text-white shadow-md border border-white/20">
+            <i class="fa-solid fa-scale-balanced text-lg"></i>
+          </div>
+          <div>
+            <div class="flex items-baseline gap-1">
+              <span class="font-black text-lg tracking-wider text-white">ÉTICA</span>
+              <span class="text-[9px] font-extrabold tracking-widest text-[#9E1B2F] uppercase bg-white px-1.5 py-0.5 rounded">CONTÁBIL</span>
+            </div>
+            <span class="text-[9px] font-bold tracking-widest text-slate-300 block -mt-0.5 uppercase">Assessoria & Legalização</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtro Rápido de Vendedor -->
+      <div class="flex items-center space-x-2 bg-slate-900/60 p-1 rounded-xl border border-white/10 text-xs">
+        <span class="text-slate-400 font-semibold px-2 hidden sm:inline"><i class="fa-solid fa-user-tie mr-1"></i> Vendedor:</span>
+        <button onclick="setSellerFilter('TODOS')" id="btn-seller-TODOS" class="px-2.5 py-1 rounded-lg font-bold transition text-white bg-[#9E1B2F] shadow-sm">Todos</button>
+        <button onclick="setSellerFilter('RODRIGO ABDON')" id="btn-seller-RODRIGO" class="px-2.5 py-1 rounded-lg font-bold transition text-slate-300 hover:text-white">Rodrigo</button>
+        <button onclick="setSellerFilter('JOSE MARCIANO')" id="btn-seller-JOSE" class="px-2.5 py-1 rounded-lg font-bold transition text-slate-300 hover:text-white">Marciano</button>
+        <button onclick="setSellerFilter('AMBOS')" id="btn-seller-AMBOS" class="px-2.5 py-1 rounded-lg font-bold transition text-slate-300 hover:text-white">Ambos</button>
+      </div>
+
+      <!-- Botões de Ação do Cabeçalho -->
+      <div class="flex items-center space-x-2">
+        
+        <!-- Salvar Planilha -->
+        <button id="btn-save-spreadsheet" onclick="manualSaveSpreadsheet()" title="Salvar e persistir todos os dados agora" class="flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-md transition active:scale-95 border border-emerald-400/40">
+          <i class="fa-solid fa-floppy-disk text-sm"></i>
+          <span>Salvar Planilha</span>
+        </button>
+
+        <!-- Gerador de Orçamento Rápido -->
+        <button onclick="openProposalModal()" title="Gerar Proposta e Orçamento em Folha Timbrada" class="flex items-center space-x-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs sm:text-sm px-3 py-2 rounded-xl shadow-md transition active:scale-95 border border-amber-300">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+          <span class="hidden md:inline">Gerar Orçamento</span>
+        </button>
+
+        <!-- Backup & Nuvem -->
+        <button onclick="downloadBackupFile()" title="Baixar arquivo de Backup .json" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs px-2.5 py-2 rounded-xl border border-slate-700 shadow-sm transition active:scale-95">
+          <i class="fa-solid fa-download text-emerald-400"></i>
+          <span class="hidden lg:inline">Fazer Backup</span>
+        </button>
+
+        <label title="Restaurar dados de um arquivo .json de backup" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 font-bold text-xs px-2.5 py-2 rounded-xl border border-slate-700 shadow-sm transition cursor-pointer active:scale-95">
+          <i class="fa-solid fa-upload"></i>
+          <span class="hidden lg:inline">Importar</span>
+          <input type="file" id="input-direct-backup" accept=".json" onchange="importBackupFile(event)" class="hidden">
+        </label>
+
+        <!-- Status Nuvem -->
+        <button onclick="openCloudModal()" title="Central da Nuvem Compartilhada" class="flex items-center space-x-1.5 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 font-bold text-xs px-2.5 py-2 rounded-xl border border-emerald-700/60 transition shadow-inner">
+          <span id="cloud-status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="cloud-status-indicator" class="font-extrabold hidden sm:inline">Nuvem Conectada</span>
+        </button>
+
+        <!-- Novo Lead -->
+        <button onclick="openLeadModal()" class="flex items-center space-x-1.5 bg-[#9E1B2F] hover:bg-[#b52037] text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl border border-white/20 shadow-md transition active:scale-95">
+          <i class="fa-solid fa-plus"></i>
+          <span>Novo Lead</span>
+        </button>
+
+        <!-- Botão Sair / Logout -->
+        <button onclick="handleLogout()" title="Sair da Conta" class="flex items-center justify-center w-8 h-8 rounded-xl bg-slate-800 hover:bg-rose-900/60 text-slate-300 hover:text-rose-200 border border-slate-700 transition active:scale-95">
+          <i class="fa-solid fa-right-from-bracket text-xs"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Barra de Navegação de Abas -->
+    <nav class="bg-[#172434] px-4 sm:px-6 flex overflow-x-auto custom-scrollbar border-t border-slate-700/60 text-xs sm:text-sm">
+      <button onclick="switchTab('fila')" id="tab-fila" class="px-4 py-2.5 border-b-2 font-bold whitespace-nowrap transition flex items-center gap-2 border-[#9E1B2F] text-white">
+        <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> Fila do Dia (SLA)
+        <span id="badge-queue-count" class="bg-[#9E1B2F] text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">0</span>
+      </button>
+
+      <button onclick="switchTab('pipeline')" id="tab-pipeline" class="px-4 py-2.5 border-b-2 font-bold whitespace-nowrap transition flex items-center gap-2 border-transparent text-slate-300 hover:text-white">
+        <i class="fa-solid fa-filter text-sky-400"></i> Pipeline Kanban
+      </button>
+
+      <button onclick="switchTab('servicos')" id="tab-servicos" class="px-4 py-2.5 border-b-2 font-bold whitespace-nowrap transition flex items-center gap-2 border-transparent text-slate-300 hover:text-white">
+        <i class="fa-solid fa-building-columns text-violet-400"></i> Serviços & Legalização
+        <span id="badge-services-count" class="bg-violet-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">8</span>
+      </button>
+
+      <button onclick="switchTab('financeiro')" id="tab-financeiro" class="px-4 py-2.5 border-b-2 font-bold whitespace-nowrap transition flex items-center gap-2 border-transparent text-slate-300 hover:text-white">
+        <i class="fa-solid fa-wallet text-amber-300"></i> Financeiro & Contratos
+        <span id="badge-contract-count" class="bg-emerald-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">23</span>
+      </button>
+
+      <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-2.5 border-b-2 font-bold whitespace-nowrap transition flex items-center gap-2 border-transparent text-slate-300 hover:text-white">
+        <i class="fa-solid fa-chart-line text-blue-400"></i> Dashboard de Metas & KPIs
+      </button>
+    </nav>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL (ABAS) -->
+  <main class="max-w-7xl w-full mx-auto p-4 sm:p-6 flex-1">
+
+    <!-- ABA 1: FILA DO DIA (SLA) -->
+    <section id="view-fila" class="space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+        <div>
+          <h2 class="text-lg font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-bell text-[#9E1B2F]"></i> Fila de Atendimento Prioritário (SLA)
+          </h2>
+          <p class="text-xs text-slate-500 font-medium">Contatos que precisam de ação hoje ou estão com retorno vencido</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-xl border border-slate-200">
+            Regra SLA: <span class="text-[#9E1B2F] font-black">24h a 48h</span>
+          </span>
+        </div>
+      </div>
+
+      <div id="queue-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- ABA 2: PIPELINE KANBAN -->
+    <section id="view-pipeline" class="hidden space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+        <div>
+          <h2 class="text-lg font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-filter text-[#2B4366]"></i> Funil Comercial & Propostas
+          </h2>
+          <p class="text-xs text-slate-500 font-medium">Arraste os cards ou use as ações para avançar os negócios</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 overflow-x-auto pb-4">
+        <!-- Coluna 1: Primeiro Contato -->
+        <div class="bg-slate-200/80 rounded-2xl p-3 border border-slate-300 min-w-[240px] flex flex-col">
+          <div class="flex items-center justify-between font-black text-xs text-slate-700 uppercase mb-2 px-1">
+            <span>1. Primeiro Contato</span>
+            <span id="count-stage-contato" class="bg-slate-300 text-slate-800 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+          </div>
+          <div id="column-contato" class="space-y-2.5 flex-1 min-h-[300px]"></div>
+        </div>
+
+        <!-- Coluna 2: Diagnóstico Tributário -->
+        <div class="bg-slate-200/80 rounded-2xl p-3 border border-slate-300 min-w-[240px] flex flex-col">
+          <div class="flex items-center justify-between font-black text-xs text-sky-800 uppercase mb-2 px-1">
+            <span>2. Diagnóstico</span>
+            <span id="count-stage-diagnostico" class="bg-sky-200 text-sky-900 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+          </div>
+          <div id="column-diagnostico" class="space-y-2.5 flex-1 min-h-[300px]"></div>
+        </div>
+
+        <!-- Coluna 3: Reunião / Alinhamento -->
+        <div class="bg-slate-200/80 rounded-2xl p-3 border border-slate-300 min-w-[240px] flex flex-col">
+          <div class="flex items-center justify-between font-black text-xs text-indigo-800 uppercase mb-2 px-1">
+            <span>3. Reunião / Call</span>
+            <span id="count-stage-reuniao" class="bg-indigo-200 text-indigo-900 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+          </div>
+          <div id="column-reuniao" class="space-y-2.5 flex-1 min-h-[300px]"></div>
+        </div>
+
+        <!-- Coluna 4: Proposta Enviada -->
+        <div class="bg-slate-200/80 rounded-2xl p-3 border border-slate-300 min-w-[240px] flex flex-col">
+          <div class="flex items-center justify-between font-black text-xs text-amber-800 uppercase mb-2 px-1">
+            <span>4. Proposta Enviada</span>
+            <span id="count-stage-proposta" class="bg-amber-200 text-amber-900 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+          </div>
+          <div id="column-proposta" class="space-y-2.5 flex-1 min-h-[300px]"></div>
+        </div>
+
+        <!-- Coluna 5: Negociação / Fechamento -->
+        <div class="bg-slate-200/80 rounded-2xl p-3 border border-slate-300 min-w-[240px] flex flex-col">
+          <div class="flex items-center justify-between font-black text-xs text-emerald-800 uppercase mb-2 px-1">
+            <span>5. Negociação</span>
+            <span id="count-stage-negociacao" class="bg-emerald-200 text-emerald-900 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+          </div>
+          <div id="column-negociacao" class="space-y-2.5 flex-1 min-h-[300px]"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 3: SERVIÇOS & LEGALIZAÇÃO -->
+    <section id="view-servicos" class="hidden space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+        <div>
+          <h2 class="text-lg font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-building-columns text-violet-600"></i> Esteira Operacional de Serviços & Legalização
+          </h2>
+          <p class="text-xs text-slate-500 font-medium">Controle das 5 etapas técnicas: Viabilidade, DBE, JUCESP/Cartório, Prefeitura e Órgão de Classe</p>
+        </div>
+
+        <button onclick="openNewServiceModal()" class="bg-violet-700 hover:bg-violet-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-md transition flex items-center gap-2 active:scale-95">
+          <i class="fa-solid fa-plus"></i>
+          <span>Novo Serviço</span>
+        </button>
+      </div>
+
+      <!-- Filtros da Esteira -->
+      <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div class="relative flex-1 min-w-[260px]">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+          <input type="text" id="services-search-input" oninput="renderServices()" placeholder="Buscar por Empresa, Protocolo REDESIM, Serviço ou Responsável..." class="w-full text-xs pl-8 pr-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-violet-500 bg-slate-50">
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-bold text-slate-600">Situação:</label>
+          <select id="services-status-filter" onchange="renderServices()" class="text-xs font-bold bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500">
+            <option value="ALL">Todas as Situações</option>
+            <option value="PENDING">⏳ Em Andamento (Etapas Pendentes)</option>
+            <option value="COMPLETED">✅ 100% Concluídos (Todas Prontas)</option>
+            <option value="INVOICED">💰 Faturados / Enviados</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tabela de Serviços & Legalização -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-600 uppercase font-black tracking-wider border-b border-slate-200">
+              <tr>
+                <th class="py-3 px-3">Empresa & Protocolo REDESIM</th>
+                <th class="py-3 px-3">Serviço</th>
+                <th class="py-3 px-3">Responsável</th>
+                <th class="py-3 px-3 text-center">1. Viabilidade</th>
+                <th class="py-3 px-3 text-center">2. DBE</th>
+                <th class="py-3 px-3 text-center">3. JUCESP</th>
+                <th class="py-3 px-3 text-center">4. Prefeitura</th>
+                <th class="py-3 px-3 text-center">5. Órgão Classe</th>
+                <th class="py-3 px-3 text-right">Valor</th>
+                <th class="py-3 px-3 text-center">Financeiro</th>
+                <th class="py-3 px-3 text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="services-table-body" class="divide-y divide-slate-100 font-medium"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 4: FINANCEIRO & CONTRATOS (JUNÇÃO COMPLETA) -->
+    <section id="view-financeiro" class="hidden space-y-5">
+      
+      <!-- Cabeçalho da Central Financeira -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+        <div>
+          <h2 class="text-lg font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-wallet text-amber-500"></i> Gestão Financeira, Contratos & Entregas
+          </h2>
+          <p class="text-xs text-slate-500 font-medium">Controle consolidado da carteira de MRR, faturamento de serviços e extrato unificado</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Importar e Exportar Vendas Integrados -->
+          <label title="Importar vendas (CSV ou JSON)" class="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-3 py-2 rounded-xl shadow-sm transition cursor-pointer flex items-center gap-1.5 active:scale-95">
+            <i class="fa-solid fa-file-import"></i>
+            <span>Importar Vendas</span>
+            <input type="file" id="input-import-sales" accept=".csv,.json" onchange="handleImportSalesFile(event)" class="hidden">
+          </label>
+
+          <button onclick="exportContractsToCSV()" title="Exportar contratos para planilha Excel/CSV" class="bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs px-3 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5 active:scale-95">
+            <i class="fa-solid fa-file-excel text-emerald-400"></i>
+            <span>Exportar CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Métricas Financeiras Consolidadas -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wide block">Faturamento Global</span>
+          <span id="fin-metric-global" class="text-2xl font-black text-slate-900 block mt-1">R$ 0,00</span>
+          <span class="text-[10px] text-emerald-600 font-bold mt-1 block"><i class="fa-solid fa-check mr-1"></i> MRR + Serviços Faturados</span>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wide block">MRR Mensal Vigente</span>
+          <span id="fin-metric-mrr" class="text-2xl font-black text-emerald-700 block mt-1">R$ 11.894,00</span>
+          <span class="text-[10px] text-slate-500 font-medium mt-1 block"><span id="total-clients-header">23</span> clientes sob contrato</span>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-[11px] font-bold text-sky-700 uppercase tracking-wide block">Serviços Faturados</span>
+          <span id="fin-metric-services-invoiced" class="text-2xl font-black text-sky-700 block mt-1">R$ 0,00</span>
+          <span class="text-[10px] text-slate-500 font-medium mt-1 block">Processos concluídos e faturados</span>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-[11px] font-bold text-amber-700 uppercase tracking-wide block">Em Aberto na Esteira</span>
+          <span id="fin-metric-services-pending" class="text-2xl font-black text-amber-600 block mt-1">R$ 0,00</span>
+          <span class="text-[10px] text-slate-500 font-medium mt-1 block">Aguardando conclusão ou cobrança</span>
+        </div>
+      </div>
+
+      <!-- SEÇÃO 1: TABELA COMPLETA DE CONTRATOS FECHADOS (MRR) -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 space-y-3 p-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <h3 class="font-black text-base text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-handshake text-emerald-600"></i> Carteira de Contratos Fechados (Honorários MRR)
+            </h3>
+            <p class="text-xs text-slate-500">Listagem de clientes com mensalidade recorrente contratada</p>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-xl">
+            <span class="text-[10px] uppercase font-bold text-emerald-700 block">Subtotal MRR Filtrado</span>
+            <span id="total-mrr-header" class="text-sm font-black text-emerald-800">R$ 11.894,00</span>
+          </div>
+        </div>
+
+        <!-- Filtro por Mês dos Contratos -->
+        <div class="flex flex-wrap items-center gap-1 text-xs pt-1">
+          <span class="text-slate-500 font-bold mr-2"><i class="fa-regular fa-calendar mr-1"></i> Filtrar por Mês:</span>
+          <button onclick="setContractMonthFilter('TODOS')" class="month-btn px-2.5 py-1 rounded-lg font-bold bg-[#2B4366] text-white">Todos (2026)</button>
+          <button onclick="setContractMonthFilter('01/2026')" class="month-btn px-2.5 py-1 rounded-lg font-bold text-slate-600 hover:bg-slate-100">Jan/26</button>
+          <button onclick="setContractMonthFilter('02/2026')" class="month-btn px-2.5 py-1 rounded-lg font-bold text-slate-600 hover:bg-slate-100">Fev/26</button>
+          <button onclick="setContractMonthFilter('03/2026')" class="month-btn px-2.5 py-1 rounded-lg font-bold text-slate-600 hover:bg-slate-100">Mar/26</button>
+          <button onclick="setContractMonthFilter('04/2026')" class="month-btn px-2.5 py-1 rounded-lg font-bold text-slate-600 hover:bg-slate-100">Abr/26</button>
+          <button onclick="setContractMonthFilter('05/2026')" class="month-btn px-2.5 py-1 rounded-lg font-bold text-slate-600 hover:bg-slate-100">Mai/26</button>
+          <button onclick="setContractMonthFilter('06/2026')" class="month-btn px-2.5 py-1 rounded-lg font-bold text-slate-600 hover:bg-slate-100">Jun/26</button>
+          <button onclick="setContractMonthFilter('07/2026')" class="month-btn px-2.5 py-1 rounded-lg font-bold text-slate-600 hover:bg-slate-100">Jul/26</button>
+          <button onclick="setContractMonthFilter('08/2026')" class="month-btn px-2.5 py-1 rounded-lg font-bold text-slate-600 hover:bg-slate-100">Ago/26</button>
+          <button onclick="setContractMonthFilter('09/2026')" class="month-btn px-2.5 py-1 rounded-lg font-bold text-slate-600 hover:bg-slate-100">Set/26</button>
+        </div>
+
+        <!-- Tabela de Contratos Fechados -->
+        <div class="overflow-hidden rounded-xl border border-slate-200">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-600 uppercase font-black tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">ID</th>
+                  <th class="py-2.5 px-3">Mês/Ano</th>
+                  <th class="py-2.5 px-3">Empresa / Cliente</th>
+                  <th class="py-2.5 px-3">Vendedor Responsável</th>
+                  <th class="py-2.5 px-3 text-right">Honorário Mensal (MRR)</th>
+                  <th class="py-2.5 px-3 text-center">Status</th>
+                  <th class="py-2.5 px-3 text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="contracts-table-body" class="divide-y divide-slate-100 font-medium"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEÇÃO 2: LIVRO RAZÃO & EXTRATO UNIFICADO -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+          <div>
+            <h3 class="font-black text-sm text-slate-900">Extrato Consolidado de Receitas (Mensalidades & Serviços Concluídos)</h3>
+            <p class="text-[11px] text-slate-500">Visão unificada das cobranças vigentes e serviços da esteira</p>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-600 uppercase font-black tracking-wider border-b border-slate-200">
+              <tr>
+                <th class="py-3 px-4">Tipo</th>
+                <th class="py-3 px-4">Empresa / Descrição</th>
+                <th class="py-3 px-4">Responsável</th>
+                <th class="py-3 px-4 text-right">Valor</th>
+                <th class="py-3 px-4 text-center">Status Financeiro</th>
+                <th class="py-3 px-4 text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="financial-ledger-body" class="divide-y divide-slate-100 font-medium"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 5: DASHBOARD DE METAS & KPIS -->
+    <section id="view-dashboard" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 class="font-black text-sm text-slate-900 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-chart-line text-[#9E1B2F]"></i> Evolução Cumulativa de MRR (01/2026 a 09/2026)
+          </h3>
+          <div class="h-64">
+            <canvas id="chart-mrr-evolution"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 class="font-black text-sm text-slate-900 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-chart-bar text-[#2B4366]"></i> Faturamento Faturado por Vendedor
+          </h3>
+          <div class="h-64">
+            <canvas id="chart-seller-performance"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: GERADOR DE ORÇAMENTO (FORMULÁRIO) -->
+  <div id="modal-proposal-form" class="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-3 hidden backdrop-blur-sm overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 space-y-4 my-8">
+      
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-[#9E1B2F] flex items-center justify-center text-white">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+          </div>
+          <h3 class="font-black text-base text-slate-900">Gerador de Orçamento & Proposta Comercial</h3>
+        </div>
+        <button onclick="closeProposalModal()" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Upload de Logo Customizada -->
+      <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 flex items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-3">
+          <img id="custom-logo-preview" class="h-8 max-w-[120px] object-contain hidden" alt="Prévia Logo">
+          <div>
+            <span class="font-bold text-slate-700 block">Personalização: Logotipo do Escritório</span>
+            <span class="text-[10px] text-slate-500">Substitua o logo padrão pela sua imagem na proposta impressa</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-1.5 rounded-xl cursor-pointer transition">
+            <span>Carregar Imagem</span>
+            <input type="file" id="input-custom-logo" accept="image/*" onchange="handleCustomLogoUpload(event)" class="hidden">
+          </label>
+          <button type="button" onclick="resetCustomLogo()" class="text-rose-600 hover:text-rose-800 text-[11px] font-bold">Padrão</button>
+        </div>
+      </div>
+
+      <!-- Formulário do Orçamento -->
+      <form onsubmit="handleGenerateProposalSubmit(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Nome do Contato / Decisor:</label>
+            <input type="text" id="prop-contact" required placeholder="Ex: Carlos Eduardo" class="w-full border rounded-xl px-3 py-2 border-slate-300">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Razão Social / Nome da Empresa:</label>
+            <input type="text" id="prop-company" required placeholder="Ex: ABC Transportes e Logística LTDA" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Telefone / WhatsApp:</label>
+            <input type="text" id="prop-phone" required placeholder="(11) 99999-9999" class="w-full border rounded-xl px-3 py-2 border-slate-300">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">E-mail Comercial:</label>
+            <input type="email" id="prop-email" placeholder="financeiro@empresa.com.br" class="w-full border rounded-xl px-3 py-2 border-slate-300">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Responsável Comercial:</label>
+            <select id="prop-seller" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold">
+              <option value="RODRIGO ABDON">RODRIGO ABDON</option>
+              <option value="JOSE MARCIANO">JOSE MARCIANO</option>
+              <option value="AMBOS">AMBOS (PARCERIA)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Regime Tributário Previsto:</label>
+            <select id="prop-regime" class="w-full border rounded-xl px-3 py-2 border-slate-300">
+              <option value="Simples Nacional">Simples Nacional</option>
+              <option value="Lucro Presumido">Lucro Presumido</option>
+              <option value="Lucro Real">Lucro Real</option>
+              <option value="MEI / Desenquadramento">MEI / Desenquadramento</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Mensalidade Honorários (R$):</label>
+            <input type="number" step="0.01" id="prop-mrr" required placeholder="Ex: 850.00" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-black text-emerald-700 text-sm">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Taxa de Abertura / Setup (R$):</label>
+            <input type="number" step="0.01" id="prop-setup" value="0.00" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold text-sky-700">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Escopo de Serviços Inclusos:</label>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-[11px]">
+            <label class="flex items-center gap-1.5"><input type="checkbox" id="svc-fiscal" checked> Escrituração Fiscal & Apuração</label>
+            <label class="flex items-center gap-1.5"><input type="checkbox" id="svc-contabil" checked> Contabilidade & Balancetes</label>
+            <label class="flex items-center gap-1.5"><input type="checkbox" id="svc-dp" checked> Folha de Pagamento & eSocial</label>
+            <label class="flex items-center gap-1.5"><input type="checkbox" id="svc-obrigacoes" checked> Obrigações Acessórias</label>
+            <label class="flex items-center gap-1.5"><input type="checkbox" id="svc-planejamento" checked> Planejamento Tributário</label>
+            <label class="flex items-center gap-1.5"><input type="checkbox" id="svc-bpo"> BPO Financeiro / Conciliação</label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Observações ou Condições Comerciais:</label>
+          <textarea id="prop-notes" rows="2" placeholder="Condições de pagamento do setup, bonificação de certificado digital, etc." class="w-full border rounded-xl px-3 py-1.5 border-slate-300"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t">
+          <button type="button" onclick="closeProposalModal()" class="px-4 py-2 font-bold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+          <button type="submit" class="px-5 py-2 font-black text-white bg-[#9E1B2F] hover:bg-[#861626] rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span>Gerar Folha Timbrada & Enviar</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: VISUALIZAÇÃO E IMPRESSÃO DA PROPOSTA A4 -->
+  <div id="modal-proposal-print" class="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-3 hidden backdrop-blur-sm overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-4xl w-full p-6 shadow-2xl border border-slate-200 my-8 space-y-4">
+      
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b pb-3 no-print">
+        <div class="flex items-center gap-2 text-slate-700 font-bold text-sm">
+          <i class="fa-solid fa-eye text-[#9E1B2F]"></i>
+          <span>Prévia da Proposta Timbrada (Padrão A4)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" class="bg-[#2B4366] hover:bg-[#1e2f47] text-white font-bold text-xs px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
+            <i class="fa-solid fa-print"></i>
+            <span>Imprimir / Salvar PDF</span>
+          </button>
+          <button onclick="sendProposalWhatsApp()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
+            <i class="fa-brands fa-whatsapp text-sm"></i>
+            <span>Enviar no WhatsApp</span>
+          </button>
+          <button onclick="closePrintProposalModal()" class="text-slate-400 hover:text-slate-700 px-2 py-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+      </div>
+
+      <!-- FOLHA TIMBRADA A4 (ÁREA IMPRIMÍVEL) -->
+      <div id="printable-proposal" class="bg-white p-8 border border-slate-300 rounded-2xl shadow-sm text-slate-800 space-y-6">
+        
+        <div class="flex items-center justify-between border-b-2 border-[#9E1B2F] pb-4">
+          <div id="proposal-header-logo" class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-[#9E1B2F] flex items-center justify-center text-white shadow-md">
+              <i class="fa-solid fa-scale-balanced text-2xl"></i>
+            </div>
+            <div>
+              <span class="font-black text-xl tracking-wider text-[#2B4366] block leading-tight">ÉTICA CONTABILIDADE</span>
+              <span class="text-[10px] font-extrabold tracking-widest text-[#9E1B2F] uppercase block">Assessoria Contábil, Fiscal & Empresarial</span>
+            </div>
+          </div>
+          <div class="text-right text-[11px] text-slate-500 font-medium">
+            <span class="font-bold text-slate-800 block text-xs">PROPOSTA DE PRESTAÇÃO DE SERVIÇOS</span>
+            <span id="print-prop-id" class="font-mono text-slate-600">PROP-2026-000</span><br>
+            <span>Data de Emissão: <strong id="print-prop-date" class="text-slate-700">--/--/2026</strong></span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div>
+            <span class="font-black text-slate-800 uppercase block mb-1">CONTRATANTE:</span>
+            <p><strong>Empresa:</strong> <span id="print-prop-company">--</span></p>
+            <p><strong>A/C:</strong> <span id="print-prop-contact">--</span></p>
+            <p><strong>WhatsApp:</strong> <span id="print-prop-phone">--</span></p>
+            <p><strong>E-mail:</strong> <span id="print-prop-email">--</span></p>
+          </div>
+          <div>
+            <span class="font-black text-slate-800 uppercase block mb-1">CONTRATADA:</span>
+            <p><strong>ÉTICA CONTABILIDADE E ASSESSORIA</strong></p>
+            <p><strong>Responsável:</strong> <span id="print-prop-seller">RODRIGO ABDON</span></p>
+            <p><strong>Regime Tributário Previsto:</strong> <span id="print-prop-regime">Simples Nacional</span></p>
+            <p><strong>Validade da Proposta:</strong> 15 dias corridos</p>
+          </div>
+        </div>
+
+        <div>
+          <span class="font-black text-xs text-slate-800 uppercase block mb-2">ESCOPO DE SERVIÇOS INCLUSOS:</span>
+          <div id="print-prop-services-list" class="grid grid-cols-2 gap-2 text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200"></div>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center justify-between">
+          <div>
+            <span class="text-[10px] uppercase font-bold text-slate-500 block">Investimento Mensal (Honorários MRR)</span>
+            <span id="print-prop-mrr" class="text-xl font-black text-emerald-700">R$ 0,00</span>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] uppercase font-bold text-slate-500 block">Taxa de Abertura / Setup Inicial</span>
+            <span id="print-prop-setup" class="text-lg font-black text-sky-700">R$ 0,00</span>
+          </div>
+        </div>
+
+        <div id="print-prop-notes-container" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 hidden">
+          <span class="font-bold text-slate-800 block mb-0.5">Observações:</span>
+          <p id="print-prop-notes"></p>
+        </div>
+
+        <div class="pt-8 border-t border-slate-200 grid grid-cols-2 gap-8 text-center text-xs text-slate-600">
+          <div>
+            <div class="border-b border-slate-400 mb-1 w-3/4 mx-auto"></div>
+            <span class="font-bold text-slate-800 block">ÉTICA CONTABILIDADE</span>
+            <span>Assessoria Comercial</span>
+          </div>
+          <div>
+            <div class="border-b border-slate-400 mb-1 w-3/4 mx-auto"></div>
+            <span id="print-prop-sign-client" class="font-bold text-slate-800 block">CONTRATANTE</span>
+            <span>De Acordo / Aceite Comercial</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR LEAD -->
+  <div id="modal-edit-lead" class="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-3 hidden backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-black text-base text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-pen-to-square text-[#9E1B2F]"></i> Editar Lead / Oportunidade
+        </h3>
+        <button onclick="closeEditLeadModal()" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form onsubmit="handleSaveEditedLead(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="edit-lead-id">
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Nome do Contato / Decisor:</label>
+          <input type="text" id="edit-lead-name" required class="w-full border rounded-xl px-3 py-2 border-slate-300">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Nome da Empresa / Razão Social:</label>
+          <input type="text" id="edit-lead-company" required class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Telefone / WhatsApp:</label>
+            <input type="text" id="edit-lead-phone" required class="w-full border rounded-xl px-3 py-2 border-slate-300">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Responsável Comercial:</label>
+            <select id="edit-lead-seller" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold">
+              <option value="RODRIGO ABDON">RODRIGO ABDON</option>
+              <option value="JOSE MARCIANO">JOSE MARCIANO</option>
+              <option value="AMBOS">AMBOS</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Honorário Estimado (MRR):</label>
+            <input type="number" step="0.01" id="edit-lead-mrr" required class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold text-emerald-700">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Temperatura:</label>
+            <select id="edit-lead-temp" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold">
+              <option value="quente">🔥 Quente</option>
+              <option value="morno">🟡 Morno</option>
+              <option value="frio">⚪ Frio</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Etapa Atual no Funil:</label>
+          <select id="edit-lead-stage" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold text-[#2B4366]">
+            <option value="contato">1. Primeiro Contato</option>
+            <option value="diagnostico">2. Diagnóstico Tributário</option>
+            <option value="reuniao">3. Reunião / Call</option>
+            <option value="proposta">4. Proposta Enviada</option>
+            <option value="negociacao">5. Negociação / Fechamento</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Anotações / Histórico:</label>
+          <textarea id="edit-lead-notes" rows="2" class="w-full border rounded-xl px-3 py-2 border-slate-300"></textarea>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t">
+          <button type="button" onclick="deleteCurrentLead()" class="text-rose-600 hover:text-rose-800 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-trash"></i> Excluir Lead
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="closeEditLeadModal()" class="px-4 py-2 font-bold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+            <button type="submit" class="px-5 py-2 font-black text-white bg-[#9E1B2F] hover:bg-[#861626] rounded-xl shadow-md transition">
+              Salvar Alterações
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR CONTRATO (MRR) -->
+  <div id="modal-edit-contract" class="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-3 hidden backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-black text-base text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-file-pen text-emerald-600"></i> Editar Contrato Vigente
+        </h3>
+        <button onclick="closeEditContractModal()" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form onsubmit="handleSaveEditedContract(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="edit-contract-id">
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Nome da Empresa / Cliente:</label>
+          <input type="text" id="edit-contract-company" required class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold text-slate-900">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Mês/Ano de Fechamento:</label>
+            <input type="text" id="edit-contract-month" required placeholder="Ex: 03/2026" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-medium">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Vendedor Responsável:</label>
+            <select id="edit-contract-seller" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold">
+              <option value="RODRIGO ABDON">RODRIGO ABDON</option>
+              <option value="JOSE MARCIANO">JOSE MARCIANO</option>
+              <option value="AMBOS">AMBOS</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Honorário Mensal (MRR):</label>
+            <input type="number" step="0.01" id="edit-contract-mrr" required class="w-full border rounded-xl px-3 py-2 border-slate-300 font-black text-emerald-700 text-sm">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Taxa de Setup Inicial (R$):</label>
+            <input type="number" step="0.01" id="edit-contract-setup" value="0.00" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold text-sky-700">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t">
+          <button type="button" onclick="deleteCurrentContract()" class="text-rose-600 hover:text-rose-800 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-trash"></i> Excluir Contrato
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="closeEditContractModal()" class="px-4 py-2 font-bold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+            <button type="submit" class="px-5 py-2 font-black text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md transition">
+              Salvar Alterações
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR SERVIÇO & LEGALIZAÇÃO -->
+  <div id="modal-edit-service" class="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-3 hidden backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-black text-base text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-pen-to-square text-violet-600"></i> Editar Serviço & Legalização
+        </h3>
+        <button onclick="closeEditServiceModal()" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form onsubmit="handleSaveEditedService(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="edit-service-id">
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Empresa / Razão Social:</label>
+          <input type="text" id="edit-service-company" required class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Protocolo REDESIM:</label>
+            <input type="text" id="edit-service-protocol" placeholder="Ex: SPP2608172941" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-mono">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tipo de Serviço:</label>
+            <input type="text" id="edit-service-type" required class="w-full border rounded-xl px-3 py-2 border-slate-300">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Responsável Comercial:</label>
+            <select id="edit-service-seller" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold">
+              <option value="RODRIGO ABDON">RODRIGO ABDON</option>
+              <option value="JOSE MARCIANO">JOSE MARCIANO</option>
+              <option value="AMBOS">AMBOS</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Valor do Serviço (R$):</label>
+            <input type="number" step="0.01" id="edit-service-value" required class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold text-slate-900">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Status Financeiro:</label>
+          <select id="edit-service-finstatus" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold">
+            <option value="PENDENTE">⏳ PENDENTE DE ENVIO</option>
+            <option value="ENVIADO">💰 ENVIADO AO FINANCEIRO (FATURADO)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Observações:</label>
+          <textarea id="edit-service-notes" rows="2" class="w-full border rounded-xl px-3 py-2 border-slate-300"></textarea>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t">
+          <button type="button" onclick="deleteCurrentService()" class="text-rose-600 hover:text-rose-800 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-trash"></i> Excluir Serviço
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="closeEditServiceModal()" class="px-4 py-2 font-bold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+            <button type="submit" class="px-5 py-2 font-black text-white bg-violet-700 hover:bg-violet-800 rounded-xl shadow-md transition">
+              Salvar Alterações
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: NOVO LEAD -->
+  <div id="modal-lead-form" class="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-3 hidden backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-black text-base text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-user-plus text-[#9E1B2F]"></i> Novo Lead Comercial
+        </h3>
+        <button onclick="closeLeadModal()" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form onsubmit="handleCreateLead(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Nome do Contato:</label>
+          <input type="text" id="lead-name" required placeholder="Ex: Rodrigo Silva" class="w-full border rounded-xl px-3 py-2 border-slate-300">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Empresa / Razão Social:</label>
+          <input type="text" id="lead-company" required placeholder="Ex: Silva Transportes ME" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Telefone / WhatsApp:</label>
+            <input type="text" id="lead-phone" required placeholder="(11) 99999-9999" class="w-full border rounded-xl px-3 py-2 border-slate-300">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Responsável:</label>
+            <select id="lead-seller" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold">
+              <option value="RODRIGO ABDON">RODRIGO ABDON</option>
+              <option value="JOSE MARCIANO">JOSE MARCIANO</option>
+              <option value="AMBOS">AMBOS</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Honorário Previsto (MRR):</label>
+            <input type="number" step="0.01" id="lead-mrr" value="700.00" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold text-emerald-700">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Temperatura:</label>
+            <select id="lead-temp" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold">
+              <option value="quente">🔥 Quente</option>
+              <option value="morno">🟡 Morno</option>
+              <option value="frio">⚪ Frio</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Anotações:</label>
+          <textarea id="lead-notes" rows="2" class="w-full border rounded-xl px-3 py-2 border-slate-300"></textarea>
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-3 border-t">
+          <button type="button" onclick="closeLeadModal()" class="px-4 py-2 font-bold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+          <button type="submit" class="px-5 py-2 font-black text-white bg-[#9E1B2F] hover:bg-[#861626] rounded-xl shadow-md transition">Adicionar Lead</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: NOVO SERVIÇO & LEGALIZAÇÃO -->
+  <div id="modal-new-service" class="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-3 hidden backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-black text-base text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-folder-plus text-violet-600"></i> Cadastrar Novo Serviço
+        </h3>
+        <button type="button" onclick="closeNewServiceModal()" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form onsubmit="handleCreateServiceSubmit(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Empresa / Razão Social:</label>
+          <input type="text" id="new-service-company" required placeholder="Ex: Panificadora Central LTDA" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold focus:outline-none focus:ring-2 focus:ring-violet-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Protocolo REDESIM:</label>
+            <input type="text" id="new-service-protocol" placeholder="Ex: SPP2608172941" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tipo de Serviço:</label>
+            <input type="text" id="new-service-type" required placeholder="Ex: Abertura de Empresa" list="list-service-types" class="w-full border rounded-xl px-3 py-2 border-slate-300 focus:outline-none focus:ring-2 focus:ring-violet-500">
+            <datalist id="list-service-types">
+              <option value="Abertura de Empresa">
+              <option value="Alteração Contratual">
+              <option value="Desenquadramento MEI">
+              <option value="Abertura de Filial">
+              <option value="Regularização Fiscal">
+              <option value="Baixa de Empresa">
+              <option value="Licenciamento Sanitário / Órgão de Classe">
+            </datalist>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Responsável Comercial:</label>
+            <select id="new-service-seller" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500">
+              <option value="RODRIGO ABDON">RODRIGO ABDON</option>
+              <option value="JOSE MARCIANO">JOSE MARCIANO</option>
+              <option value="AMBOS">AMBOS (PARCERIA)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Valor do Serviço (R$):</label>
+            <input type="number" step="0.01" id="new-service-value" required placeholder="Ex: 1200.00" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Status Financeiro Inicial:</label>
+          <select id="new-service-finstatus" class="w-full border rounded-xl px-3 py-2 border-slate-300 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500">
+            <option value="PENDENTE">⏳ PENDENTE DE ENVIO</option>
+            <option value="ENVIADO">💰 ENVIADO AO FINANCEIRO (FATURADO)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Observações Operacionais:</label>
+          <textarea id="new-service-notes" rows="2" placeholder="Ex: Aguardando consulta prévia de viabilidade na prefeitura..." class="w-full border rounded-xl px-3 py-2 border-slate-300 focus:outline-none focus:ring-2 focus:ring-violet-500"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t">
+          <button type="button" onclick="closeNewServiceModal()" class="px-4 py-2 font-bold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+          <button type="submit" class="px-5 py-2 font-black text-white bg-violet-700 hover:bg-violet-800 rounded-xl shadow-md transition active:scale-95">
+            Cadastrar Serviço
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: NUVEM COMPARTILHADA & BACKUP -->
+  <div id="modal-cloud" class="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-3 hidden backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-black text-base text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-cloud text-sky-600"></i> Central da Nuvem Compartilhada
+        </h3>
+        <button onclick="closeCloudModal()" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <!-- Explicação Clara -->
+        <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl text-emerald-900 space-y-1">
+          <span class="font-black flex items-center gap-1.5 text-xs text-emerald-800">
+            <i class="fa-solid fa-cloud-check text-emerald-600"></i> Nuvem Compartilhada Ativa
+          </span>
+          <p class="text-[11px] leading-relaxed">
+            Seus computadores e celulares sincronizam automaticamente através da sala exclusiva da <strong>Ética Contabilidade</strong> com redundância contínua. Caso possua uma URL própria do Firebase, você pode adicioná-la opcionalmente abaixo.
+          </p>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">URL Personalizada (Firebase Realtime Database):</label>
+            <input type="text" id="cloud-firebase-url" placeholder="https://etica-contabilidade-sp-2026-default-rtdb.firebaseio.com" class="w-full text-xs font-mono font-medium text-slate-800 border rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <span class="text-[10px] text-emerald-600 font-semibold block mt-1"><i class="fa-solid fa-check-double mr-1"></i>URL oficial etica-contabilidade-sp-2026 pré-configurada como padrão</span>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Identificador da Sala / Base:</label>
+            <div class="flex gap-2">
+              <input type="text" id="cloud-room-id" value="etica-contabilidade-sp-2026" class="w-full font-mono font-bold text-[#2B4366] border rounded-xl px-3 py-2 bg-white text-xs">
+              <button onclick="saveCloudSettings()" class="bg-[#2B4366] hover:bg-[#1f314c] text-white font-bold px-3 py-2 rounded-xl active:scale-95 transition">Salvar Sala</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button type="button" onclick="uploadDataToCloud(true)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>Enviar Deste Aparelho</span>
+          </button>
+          <button type="button" onclick="pullDataFromCloud(true, true)" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+            <i class="fa-solid fa-cloud-arrow-down"></i>
+            <span>Puxar da Nuvem Agora</span>
+          </button>
+        </div>
+
+        <div class="p-3 bg-slate-100 rounded-xl space-y-1.5">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="font-bold text-slate-600">Status da Conexão:</span>
+            <span id="cloud-status-text" class="font-black text-amber-700 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span> Aguardando Rede
+            </span>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500">
+            <span>Última sincronização com sucesso:</span>
+            <span id="cloud-last-time-label" class="font-medium text-slate-700">Nunca</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT ENGINE CONSOLIDADO -->
+  <script>
+    const TODAY_STR = "2026-10-15";
+    const STORAGE_KEY = "etica_crm_2026_v18_stable";
+    const SAFEGUARD_SERVICES_KEY = "etica_services_safeguard_v18";
+    const SAFEGUARD_CONTRACTS_KEY = "etica_contracts_safeguard_v18";
+    const CUSTOM_LOGO_STORAGE_KEY = "etica_custom_logo_base64";
+    const AUTH_SESSION_STORAGE_KEY = "etica_crm_user_session_v1";
+
+    const SYSTEM_USERS = {
+      rodrigo: {
+        name: "Rodrigo Abdon",
+        sellerFilter: "RODRIGO ABDON",
+        pass: "rodrigo2026",
+        role: "comercial"
+      },
+      jose: {
+        name: "José Marciano",
+        sellerFilter: "JOSE MARCIANO",
+        pass: "marciano2026",
+        role: "comercial"
+      },
+      diretoria: {
+        name: "Diretoria Ética",
+        sellerFilter: "TODOS",
+        pass: "etica2026",
+        role: "admin"
+      }
+    };
+
+    let currentUserSession = null;
+    let currentSellerFilter = "TODOS";
+    let currentContractMonthFilter = "TODOS";
+    let currentTab = "fila";
+
+    const CLOUD_STORAGE_ROOM_KEY = "etica_cloud_sync_room_id";
+    const CLOUD_FIREBASE_URL_KEY = "etica_cloud_firebase_url";
+    const DEFAULT_FIREBASE_URL = "https://etica-contabilidade-sp-2026-default-rtdb.firebaseio.com";
+    let cloudRoom = localStorage.getItem(CLOUD_STORAGE_ROOM_KEY) || "etica-contabilidade-sp-2026";
+    let cloudFirebaseUrl = localStorage.getItem(CLOUD_FIREBASE_URL_KEY) || DEFAULT_FIREBASE_URL;
+    let isCloudSyncing = false;
+    let lastCloudTimestamp = parseInt(localStorage.getItem('etica_last_cloud_ts') || '0', 10);
+    let customLogoBase64 = localStorage.getItem(CUSTOM_LOGO_STORAGE_KEY) || "";
+
+    let chartMrrEvolution = null;
+    let chartSellerPerformance = null;
+
+    function getCloudEndpoints(room) {
+      const sanitizedRoom = room.replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase() || 'eticasp2026';
+      const endpoints = [];
+
+      // 1. Firebase Oficial Pré-configurado para etica-contabilidade-sp-2026
+      const activeFirebaseUrl = (cloudFirebaseUrl && cloudFirebaseUrl.trim() !== '') ? cloudFirebaseUrl.trim() : DEFAULT_FIREBASE_URL;
+      const cleanBase = activeFirebaseUrl.replace(/\/+$/, '');
+      endpoints.push({
+        name: "Firebase Ética Contabilidade",
+        type: "firebase",
+        url: `${cleanBase}/${encodeURIComponent(sanitizedRoom)}.json`
+      });
+
+      // 2. Provedor Primário Automático de Contingência
+      endpoints.push({
+        name: "Cloud Storage Primário",
+        type: "rest",
+        set: `https://kv.val.run/set?key=${encodeURIComponent('etica_cloud_' + sanitizedRoom)}`,
+        get: `https://kv.val.run/get?key=${encodeURIComponent('etica_cloud_' + sanitizedRoom)}`
+      });
+
+      // 3. Provedor Secundário de Contingência
+      endpoints.push({
+        name: "Cloud Storage Contingência",
+        type: "rest",
+        set: `https://kv.val.run/set?key=${encodeURIComponent('etica_backup_room_' + sanitizedRoom)}`,
+        get: `https://kv.val.run/get?key=${encodeURIComponent('etica_backup_room_' + sanitizedRoom)}`
+      });
+
+      return endpoints;
+    }
+
+    const OFFICIAL_2026_CONTRACTS = [
+      { id: "CTR-001", month: "01/2026", company: "AG ATACADO E VAREJO", vendedor: "RODRIGO ABDON", mrr: 850, setup: 0 },
+      { id: "CTR-002", month: "02/2026", company: "HOLPE GUINCHOS", vendedor: "JOSE MARCIANO", mrr: 650, setup: 0 },
+      { id: "CTR-003", month: "02/2026", company: "AÇAI SABOR DO INTERIOR", vendedor: "RODRIGO ABDON", mrr: 750, setup: 0 },
+      { id: "CTR-004", month: "03/2026", company: "CAROL CAMPOS CONSULTING", vendedor: "RODRIGO ABDON", mrr: 550, setup: 0 },
+      { id: "CTR-005", month: "03/2026", company: "TRANSPERINE TRANSPORTES", vendedor: "JOSE MARCIANO", mrr: 800, setup: 0 },
+      { id: "CTR-006", month: "03/2026", company: "ALLUGUE LOCACOES LTDA", vendedor: "RODRIGO ABDON", mrr: 600, setup: 0 },
+      { id: "CTR-007", month: "04/2026", company: "BELA LIZES COSMETICOS", vendedor: "AMBOS", mrr: 700, setup: 0 },
+      { id: "CTR-008", month: "04/2026", company: "RAVEL COMERCIO DE VEICULOS", vendedor: "AMBOS", mrr: 650, setup: 0 },
+      { id: "CTR-009", month: "05/2026", company: "OTICA DOMUS", vendedor: "JOSE MARCIANO", mrr: 750, setup: 0 },
+      { id: "CTR-010", month: "06/2026", company: "PRIME DISTRIBUIDORA", vendedor: "RODRIGO ABDON", mrr: 950, setup: 0 },
+      { id: "CTR-011", month: "06/2026", company: "VANGUARDA SERVICOS", vendedor: "JOSE MARCIANO", mrr: 1000, setup: 0 },
+      { id: "CTR-012", month: "07/2026", company: "MKT DIGITAL PRO", vendedor: "RODRIGO ABDON", mrr: 1200, setup: 0 },
+      { id: "CTR-013", month: "07/2026", company: "LAVANDERIA BRILHO", vendedor: "JOSE MARCIANO", mrr: 650, setup: 0 },
+      { id: "CTR-014", month: "07/2026", company: "AUTO ELETRICA CENTRAL", vendedor: "RODRIGO ABDON", mrr: 750, setup: 0 },
+      { id: "CTR-015", month: "08/2026", company: "PET SHOP PATAS", vendedor: "JOSE MARCIANO", mrr: 850, setup: 0 },
+      { id: "CTR-016", month: "08/2026", company: "PADARIA DO VALE", vendedor: "RODRIGO ABDON", mrr: 800, setup: 0 },
+      { id: "CTR-017", month: "09/2026", company: "CLINICA ODONTOLOGICA SORRISO", vendedor: "JOSE MARCIANO", mrr: 1200, setup: 0 },
+      { id: "CTR-018", month: "09/2026", company: "OFICINA MECANICA EXPRESS", vendedor: "RODRIGO ABDON", mrr: 900, setup: 0 },
+      { id: "CTR-019", month: "09/2026", company: "STUDIO FITNESS TOTAL", vendedor: "AMBOS", mrr: 750, setup: 0 },
+      { id: "CTR-020", month: "09/2026", company: "BAR E RESTAURANTE CENTRAL", vendedor: "RODRIGO ABDON", mrr: 650, setup: 0 },
+      { id: "CTR-021", month: "09/2026", company: "ESCRITORIO ADVOCACIA SILVA", vendedor: "JOSE MARCIANO", mrr: 850, setup: 0 },
+      { id: "CTR-022", month: "09/2026", company: "DROGARIA SAO PAULO", vendedor: "AMBOS", mrr: 950, setup: 0 },
+      { id: "CTR-023", month: "09/2026", company: "AGROPECUARIA CAMPOS", vendedor: "RODRIGO ABDON", mrr: 744, setup: 0 }
+    ];
+
+    const OFFICIAL_2026_SERVICES = [
+      {
+        id: "SRV-2026-001",
+        company: "AÇAI SABOR DO INTERIOR",
+        protocol: "SPP2608172941",
+        serviceType: "Abertura de Empresa",
+        vendedor: "RODRIGO ABDON",
+        value: 1200,
+        financialStatus: "PENDENTE",
+        stages: { viabilidade: "Concluído", dbe: "Concluído", jucesp: "Em Andamento", prefeitura: "Não Iniciado", orgao: "N/A" }
+      },
+      {
+        id: "SRV-2026-002",
+        company: "HOLPE GUINCHOS",
+        protocol: "SPP2609183422",
+        serviceType: "Alteração Contratual",
+        vendedor: "JOSE MARCIANO",
+        value: 1500,
+        financialStatus: "ENVIADO",
+        stages: { viabilidade: "Concluído", dbe: "Concluído", jucesp: "Concluído", prefeitura: "Concluído", orgao: "N/A" }
+      },
+      {
+        id: "SRV-2026-003",
+        company: "CAROL CAMPOS CONSULTING",
+        protocol: "SPP2607149021",
+        serviceType: "Desenquadramento MEI",
+        vendedor: "RODRIGO ABDON",
+        value: 850,
+        financialStatus: "ENVIADO",
+        stages: { viabilidade: "Concluído", dbe: "Concluído", jucesp: "Concluído", prefeitura: "Concluído", orgao: "N/A" }
+      },
+      {
+        id: "SRV-2026-004",
+        company: "TRANSPERINE",
+        protocol: "SPP2606198433",
+        serviceType: "Abertura de Filial",
+        vendedor: "JOSE MARCIANO",
+        value: 1200,
+        financialStatus: "ENVIADO",
+        stages: { viabilidade: "Concluído", dbe: "Concluído", jucesp: "Concluído", prefeitura: "Concluído", orgao: "N/A" }
+      },
+      {
+        id: "SRV-2026-005",
+        company: "ALLUGUE LTDA",
+        protocol: "SPP2605178942",
+        serviceType: "Regularização Fiscal",
+        vendedor: "RODRIGO ABDON",
+        value: 900,
+        financialStatus: "ENVIADO",
+        stages: { viabilidade: "Concluído", dbe: "Concluído", jucesp: "Concluído", prefeitura: "Concluído", orgao: "Concluído" }
+      },
+      {
+        id: "SRV-2026-006",
+        company: "BELA LIZES",
+        protocol: "SPP2604123891",
+        serviceType: "Abertura de Empresa",
+        vendedor: "AMBOS",
+        value: 1000,
+        financialStatus: "ENVIADO",
+        stages: { viabilidade: "Concluído", dbe: "Concluído", jucesp: "Concluído", prefeitura: "Concluído", orgao: "N/A" }
+      },
+      {
+        id: "SRV-2026-007",
+        company: "RAVEL COMERCIO DE VEICULOS",
+        protocol: "SPP2603187210",
+        serviceType: "Alteração de Atividades",
+        vendedor: "AMBOS",
+        value: 1300,
+        financialStatus: "ENVIADO",
+        stages: { viabilidade: "Concluído", dbe: "Concluído", jucesp: "Concluído", prefeitura: "Concluído", orgao: "N/A" }
+      },
+      {
+        id: "SRV-2026-008",
+        company: "OTICA DOMUS",
+        protocol: "SPP2602198301",
+        serviceType: "Abertura e Licenciamento",
+        vendedor: "JOSE MARCIANO",
+        value: 750,
+        financialStatus: "ENVIADO",
+        stages: { viabilidade: "Concluído", dbe: "Concluído", jucesp: "Concluído", prefeitura: "Concluído", orgao: "Concluído" }
+      }
+    ];
+
+    const INITIAL_LEADS = [
+      {
+        id: "lead-001",
+        name: "Carlos Eduardo Menezes",
+        company: "Menezes & Filhos Logística",
+        phone: "(11) 98765-4321",
+        email: "carlos@menezeslog.com.br",
+        seller: "RODRIGO ABDON",
+        stage: "proposta",
+        temperature: "quente",
+        expectedValue: 850,
+        setupValue: 500,
+        notes: "Proposta enviada para Simples Nacional. Decisão até sexta.",
+        nextActionDate: TODAY_STR
+      },
+      {
+        id: "lead-002",
+        name: "Renata Vasconcelos",
+        company: "Clinica Odonto Life",
+        phone: "(11) 97654-3210",
+        email: "renata@odontolife.com.br",
+        seller: "JOSE MARCIANO",
+        stage: "negociacao",
+        temperature: "quente",
+        expectedValue: 1200,
+        setupValue: 0,
+        notes: "Negociando honorários para 3 sócios e livro caixa.",
+        nextActionDate: TODAY_STR
+      }
+    ];
+
+    let contracts = JSON.parse(JSON.stringify(OFFICIAL_2026_CONTRACTS));
+    let services = JSON.parse(JSON.stringify(OFFICIAL_2026_SERVICES));
+    let leads = JSON.parse(JSON.stringify(INITIAL_LEADS));
+
+    function getSafeCompanyName(contract) {
+      if (!contract) return "Cliente Não Identificado";
+      const name = contract.company || contract.cliente || contract.name || contract.nome || contract.razaoSocial;
+      if (name && typeof name === 'string' && name.trim() !== '' && name.toLowerCase() !== 'undefined') {
+        return name.trim();
+      }
+      const official = OFFICIAL_2026_CONTRACTS.find(o => o.id === contract.id);
+      if (official) return official.company;
+      return "Empresa Parceira";
+    }
+
+    function saveToLocalStorage(triggerCloud = true) {
+      try {
+        const payload = { contracts, services, leads, updatedAt: new Date().toISOString() };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        localStorage.setItem(SAFEGUARD_CONTRACTS_KEY, JSON.stringify(contracts));
+        localStorage.setItem(SAFEGUARD_SERVICES_KEY, JSON.stringify(services));
+        // Guarda cópia de persistência imutável contra logout
+        localStorage.setItem("etica_crm_master_data_backup", JSON.stringify(payload));
+      } catch (err) {
+        console.warn("Erro ao salvar localStorage:", err);
+      }
+      if (triggerCloud) {
+        uploadDataToCloud(false);
+      }
+    }
+
+    function loadFromLocalStorage() {
+      try {
+        // Busca primeiro na chave principal e depois nas chaves de persistência imutável
+        let raw = localStorage.getItem(STORAGE_KEY) || 
+                  localStorage.getItem("etica_crm_master_data_backup") ||
+                  localStorage.getItem("etica_crm_2026_v17_consolidated") ||
+                  localStorage.getItem("etica_crm_2026_v15_protected") ||
+                  localStorage.getItem("etica_crm_2026_v14_clean") ||
+                  localStorage.getItem("nexus_crm_2026_v10_restored_all");
+
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed.contracts) && parsed.contracts.length > 0) {
+            contracts = parsed.contracts;
+          }
+          if (Array.isArray(parsed.services) && parsed.services.length > 0) {
+            services = parsed.services;
+          }
+          if (Array.isArray(parsed.leads) && parsed.leads.length > 0) {
+            leads = parsed.leads;
+          }
+        }
+
+        const rawServicesSafeguard = localStorage.getItem(SAFEGUARD_SERVICES_KEY);
+        if ((!services || services.length === 0) && rawServicesSafeguard) {
+          services = JSON.parse(rawServicesSafeguard);
+        }
+
+        const rawContractsSafeguard = localStorage.getItem(SAFEGUARD_CONTRACTS_KEY);
+        if ((!contracts || contracts.length === 0) && rawContractsSafeguard) {
+          contracts = JSON.parse(rawContractsSafeguard);
+        }
+
+        if (!contracts || contracts.length === 0) {
+          contracts = JSON.parse(JSON.stringify(OFFICIAL_2026_CONTRACTS));
+        }
+
+        contracts.forEach(c => {
+          c.company = getSafeCompanyName(c);
+          c.cliente = c.company;
+        });
+
+      } catch (e) {
+        console.warn("Falha no carregamento local:", e);
+        if (!contracts || contracts.length === 0) {
+          contracts = JSON.parse(JSON.stringify(OFFICIAL_2026_CONTRACTS));
+        }
+        if (!services || services.length === 0) {
+          services = JSON.parse(JSON.stringify(OFFICIAL_2026_SERVICES));
+        }
+        if (!leads || leads.length === 0) {
+          leads = JSON.parse(JSON.stringify(INITIAL_LEADS));
+        }
+      }
+    }
+
+    // MOTOR DE AUTENTICAÇÃO E LOGIN
+    function checkExistingAuthSession() {
+      try {
+        const raw = localStorage.getItem(AUTH_SESSION_STORAGE_KEY) || sessionStorage.getItem(AUTH_SESSION_STORAGE_KEY);
+        if (raw) {
+          const session = JSON.parse(raw);
+          if (session && session.username && SYSTEM_USERS[session.username]) {
+            currentUserSession = session;
+            applyUserSession(session);
+            return true;
+          }
+        }
+      } catch (e) {
+        console.warn("Erro ao ler sessão:", e);
+      }
+      return false;
+    }
+
+    function applyUserSession(session) {
+      const gate = document.getElementById('login-gate');
+      if (gate) gate.classList.add('hidden');
+
+      const userConfig = SYSTEM_USERS[session.username];
+      if (userConfig) {
+        setSellerFilter(userConfig.sellerFilter);
+      }
+      showToast(`Bem-vindo, ${session.name}!`);
+    }
+
+    function handleLoginSubmit(event) {
+      event.preventDefault();
+      const username = document.getElementById('login-user-select').value;
+      const pass = document.getElementById('login-password').value.trim();
+      const remember = document.getElementById('login-remember-me').checked;
+      const errorMsg = document.getElementById('login-error-msg');
+      const errorText = document.getElementById('login-error-text');
+
+      const user = SYSTEM_USERS[username];
+      if (!user || user.pass !== pass) {
+        if (errorMsg) errorMsg.classList.remove('hidden');
+        if (errorText) errorText.innerText = "Senha incorreta. Tente novamente.";
+        return;
+      }
+
+      if (errorMsg) errorMsg.classList.add('hidden');
+
+      currentUserSession = {
+        username: username,
+        name: user.name,
+        role: user.role,
+        sellerFilter: user.sellerFilter,
+        loggedInAt: new Date().toISOString()
+      };
+
+      if (remember) {
+        localStorage.setItem(AUTH_SESSION_STORAGE_KEY, JSON.stringify(currentUserSession));
+      } else {
+        sessionStorage.setItem(AUTH_SESSION_STORAGE_KEY, JSON.stringify(currentUserSession));
+      }
+
+      // Garante recarregamento dos dados mais recentes gravados
+      loadFromLocalStorage();
+      renderAllViews();
+      applyUserSession(currentUserSession);
+      pullDataFromCloud(true);
+    }
+
+    function handleLogout() {
+      // 1. ANTES DE DESLOGAR: Garante que todos os dados atuais em tela estão salvos
+      saveToLocalStorage(true);
+
+      // 2. Remove apenas as credenciais de sessão do usuário (NUNCA toca nos dados de clientes, serviços e contratos)
+      localStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
+      sessionStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
+      currentUserSession = null;
+
+      // 3. Exibe novamente a tela de login mantendo toda a base intacta
+      const gate = document.getElementById('login-gate');
+      const passInput = document.getElementById('login-password');
+      if (passInput) passInput.value = "";
+      if (gate) gate.classList.remove('hidden');
+
+      showToast("Dados salvos e sessão encerrada com sucesso!");
+    }
+
+    function togglePasswordVisibility() {
+      const passInput = document.getElementById('login-password');
+      const icon = document.getElementById('password-toggle-icon');
+      if (!passInput || !icon) return;
+      if (passInput.type === "password") {
+        passInput.type = "text";
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        passInput.type = "password";
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    }
+
+    function manualSaveSpreadsheet() {
+      saveToLocalStorage(true);
+      const btn = document.getElementById('btn-save-spreadsheet');
+      if (btn) {
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = `<i class="fa-solid fa-check text-white"></i> <span>Salvo com Sucesso!</span>`;
+        btn.classList.replace('bg-emerald-600', 'bg-emerald-800');
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+          btn.classList.replace('bg-emerald-800', 'bg-emerald-600');
+        }, 1600);
+      }
+      showToast("Planilha salva e sincronizada na nuvem!");
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast-notification');
+      const msg = document.getElementById('toast-message');
+      if (!toast || !msg) return;
+      msg.innerText = message;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    function switchTab(tabId) {
+      // Redireciona qualquer chamada antiga de 'contratos' diretamente para a aba unificada 'financeiro'
+      if (tabId === 'contratos') {
+        tabId = 'financeiro';
+      }
+      currentTab = tabId;
+      const views = ['fila', 'pipeline', 'servicos', 'financeiro', 'dashboard'];
+      views.forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        const tabBtn = document.getElementById(`tab-${v}`);
+        if (el) el.classList.toggle('hidden', v !== tabId);
+        if (tabBtn) {
+          if (v === tabId) {
+            tabBtn.classList.add('border-[#9E1B2F]', 'text-white');
+            tabBtn.classList.remove('border-transparent', 'text-slate-300');
+          } else {
+            tabBtn.classList.remove('border-[#9E1B2F]', 'text-white');
+            tabBtn.classList.add('border-transparent', 'text-slate-300');
+          }
+        }
+      });
+
+      if (tabId === 'dashboard') {
+        setTimeout(initOrUpdateCharts, 50);
+      }
+    }
+
+    function setSellerFilter(seller) {
+      currentSellerFilter = seller;
+      const btnAll = document.getElementById('btn-seller-TODOS');
+      const btnR = document.getElementById('btn-seller-RODRIGO');
+      const btnJ = document.getElementById('btn-seller-JOSE');
+      const btnA = document.getElementById('btn-seller-AMBOS');
+
+      [btnAll, btnR, btnJ, btnA].forEach(b => {
+        if (b) {
+          b.className = "px-2.5 py-1 rounded-lg font-bold transition text-slate-300 hover:text-white";
+        }
+      });
+
+      let targetBtn = btnAll;
+      if (seller === 'RODRIGO ABDON') targetBtn = btnR;
+      if (seller === 'JOSE MARCIANO') targetBtn = btnJ;
+      if (seller === 'AMBOS') targetBtn = btnA;
+      if (targetBtn) {
+        targetBtn.className = "px-2.5 py-1 rounded-lg font-bold transition text-white bg-[#9E1B2F] shadow-sm";
+      }
+
+      renderAllViews();
+    }
+
+    function renderAllViews() {
+      renderQueue();
+      renderPipeline();
+      renderContracts();
+      renderServices();
+      renderFinancialConsolidated();
+    }
+
+    // RENDERIZADOR 1: FILA DO DIA (SLA)
+    function renderQueue() {
+      const container = document.getElementById('queue-container');
+      const badge = document.getElementById('badge-queue-count');
+      if (!container) return;
+
+      let filtered = leads.filter(l => {
+        if (currentSellerFilter !== "TODOS" && l.seller !== currentSellerFilter) return false;
+        return l.stage !== 'ganho' && l.stage !== 'perdido';
+      });
+
+      if (badge) badge.innerText = filtered.length;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full bg-white p-8 rounded-2xl text-center border border-slate-200">
+            <i class="fa-solid fa-circle-check text-4xl text-emerald-500 mb-2"></i>
+            <h4 class="font-black text-slate-800 text-sm">Fila do Dia Zerada!</h4>
+            <p class="text-xs text-slate-500">Nenhum retorno ou SLA pendente para o filtro selecionado.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(l => {
+        const isOverdue = l.nextActionDate && l.nextActionDate <= TODAY_STR;
+        const cleanPhone = (l.phone || '').replace(/\D/g, '');
+        const sellerShort = l.seller === 'RODRIGO ABDON' ? 'Rodrigo' : l.seller === 'JOSE MARCIANO' ? 'Marciano' : 'Parceria';
+
+        return `
+          <div class="bg-white rounded-2xl p-4 shadow-sm border ${isOverdue ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200'} space-y-3">
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
+                  l.temperature === 'quente' ? 'bg-rose-100 text-rose-800' : l.temperature === 'morno' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'
+                }">
+                  ${l.temperature === 'quente' ? '🔥 Quente' : l.temperature === 'morno' ? '🟡 Morno' : '⚪ Frio'}
+                </span>
+                <h4 class="font-black text-sm text-slate-900 mt-1">${l.company}</h4>
+                <p class="text-xs text-slate-500 font-medium"><i class="fa-regular fa-user mr-1"></i>${l.name}</p>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-[#2B4366]/10 text-[#2B4366]">
+                  ${sellerShort}
+                </span>
+                <button onclick="openEditLeadModal('${l.id}')" title="Editar Lead" class="text-slate-400 hover:text-slate-700 p-1">
+                  <i class="fa-solid fa-pen-to-square text-xs"></i>
+                </button>
+                <button onclick="deleteLeadById('${l.id}')" title="Excluir Lead" class="text-rose-400 hover:text-rose-600 p-1">
+                  <i class="fa-solid fa-trash text-xs"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+              <p class="line-clamp-2"><strong>Anotação:</strong> ${l.notes || 'Sem observações'}</p>
+            </div>
+
+            <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
+              <div>
+                <span class="text-[10px] text-slate-400 block font-semibold">Previsão MRR</span>
+                <span class="font-black text-emerald-700">R$ ${Number(l.expectedValue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <a href="https://wa.me/55${cleanPhone}?text=Ol%C3%A1%20${encodeURIComponent(l.name)}%2C%20tudo%20bem%3F%20Aqui%20%C3%A9%20da%20%C3%89tica%20Contabilidade..." target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1 transition">
+                  <i class="fa-brands fa-whatsapp"></i> Contato
+                </a>
+                <button onclick="advanceLeadStage('${l.id}')" class="bg-[#2B4366] hover:bg-[#1f314c] text-white font-bold px-2.5 py-1.5 rounded-xl transition">
+                  Avançar <i class="fa-solid fa-arrow-right ml-0.5"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // RENDERIZADOR 2: PIPELINE KANBAN
+    function renderPipeline() {
+      const stages = ['contato', 'diagnostico', 'reuniao', 'proposta', 'negociacao'];
+      stages.forEach(st => {
+        const col = document.getElementById(`column-${st}`);
+        const cnt = document.getElementById(`count-stage-${st}`);
+        if (!col) return;
+
+        let list = leads.filter(l => {
+          if (l.stage !== st) return false;
+          if (currentSellerFilter !== "TODOS" && l.seller !== currentSellerFilter) return false;
+          return true;
+        });
+
+        if (cnt) cnt.innerText = list.length;
+
+        col.innerHTML = list.map(l => {
+          const sellerShort = l.seller === 'RODRIGO ABDON' ? 'Rodrigo' : l.seller === 'JOSE MARCIANO' ? 'Marciano' : 'Ambos';
+          const cleanPhone = (l.phone || '').replace(/\D/g, '');
+          return `
+            <div class="bg-white rounded-xl p-3 shadow-sm border border-slate-200 text-xs space-y-2 hover:shadow transition">
+              <div class="flex items-center justify-between">
+                <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">${sellerShort}</span>
+                <div class="flex items-center gap-1.5">
+                  <span class="font-black text-emerald-700">R$ ${Number(l.expectedValue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  <button onclick="openEditLeadModal('${l.id}')" title="Editar" class="text-slate-400 hover:text-slate-700 p-0.5">
+                    <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                  </button>
+                  <button onclick="deleteLeadById('${l.id}')" title="Excluir" class="text-rose-400 hover:text-rose-600 p-0.5">
+                    <i class="fa-solid fa-trash text-[10px]"></i>
+                  </button>
+                </div>
+              </div>
+              <h5 class="font-black text-slate-800 text-xs leading-tight">${l.company}</h5>
+              <p class="text-[11px] text-slate-500">${l.name}</p>
+
+              <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+                <button onclick="advanceLeadStage('${l.id}')" class="text-[10px] font-extrabold text-[#2B4366] hover:underline flex items-center gap-1">
+                  Avançar &rarr;
+                </button>
+                <div class="flex items-center gap-1">
+                  ${cleanPhone ? `
+                    <a href="https://wa.me/55${cleanPhone}" target="_blank" class="text-[10px] text-emerald-600 hover:text-emerald-800 p-1" title="Chamar no WhatsApp">
+                      <i class="fa-brands fa-whatsapp text-sm"></i>
+                    </a>
+                  ` : ''}
+                  <button onclick="winLeadContract('${l.id}')" class="text-[10px] font-black text-emerald-600 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded transition">
+                    Ganho 🎉
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      });
+    }
+
+    function advanceLeadStage(leadId) {
+      const lead = leads.find(l => l.id === leadId);
+      if (!lead) return;
+      const order = ['contato', 'diagnostico', 'reuniao', 'proposta', 'negociacao', 'ganho'];
+      const idx = order.indexOf(lead.stage);
+      if (idx >= 0 && idx < order.length - 1) {
+        lead.stage = order[idx + 1];
+        if (lead.stage === 'ganho') {
+          winLeadContract(leadId);
+          return;
+        }
+        saveToLocalStorage(true);
+        renderAllViews();
+        showToast("Lead avançado no funil!");
+      }
+    }
+
+    function winLeadContract(leadId) {
+      const lead = leads.find(l => l.id === leadId);
+      if (!lead) return;
+      lead.stage = 'ganho';
+
+      const newContract = {
+        id: "CTR-" + String(contracts.length + 1).padStart(3, '0'),
+        company: lead.company,
+        vendedor: lead.seller,
+        mrr: Number(lead.expectedValue) || 750,
+        setup: Number(lead.setupValue) || 0,
+        date: TODAY_STR,
+        month: "10/2026"
+      };
+
+      contracts.unshift(newContract);
+      saveToLocalStorage(true);
+      renderAllViews();
+      showToast(`Parabéns! Contrato de ${lead.company} ganho com sucesso!`);
+    }
+
+    // RENDERIZADOR 3: CONTRATOS FECHADOS (MRR)
+    function setContractMonthFilter(m) {
+      currentContractMonthFilter = m;
+      document.querySelectorAll('.month-btn').forEach(btn => {
+        btn.classList.remove('bg-[#2B4366]', 'text-white');
+        btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+        if ((m === 'TODOS' && btn.innerText.includes('Todos')) || btn.innerText.includes(m.replace('/2026', ''))) {
+          btn.classList.add('bg-[#2B4366]', 'text-white');
+          btn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+        }
+      });
+      renderContracts();
+    }
+
+    function renderContracts() {
+      const tbody = document.getElementById('contracts-table-body');
+      const mrrEl = document.getElementById('total-mrr-header');
+      const countEl = document.getElementById('total-clients-header');
+      const badgeCount = document.getElementById('badge-contract-count');
+
+      let filtered = contracts.filter(c => {
+        if (currentSellerFilter !== "TODOS" && c.vendedor !== currentSellerFilter) return false;
+        if (currentContractMonthFilter !== "TODOS" && c.month !== currentContractMonthFilter) return false;
+        return true;
+      });
+
+      const totalMRR = filtered.reduce((acc, c) => acc + (Number(c.mrr) || 0), 0);
+
+      if (mrrEl) mrrEl.innerText = `R$ ${totalMRR.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      if (countEl) countEl.innerText = filtered.length;
+      if (badgeCount) badgeCount.innerText = contracts.length;
+
+      if (!tbody) return;
+
+      tbody.innerHTML = filtered.map(c => {
+        const safeName = getSafeCompanyName(c);
+        const sellerShort = c.vendedor === 'RODRIGO ABDON' ? 'Rodrigo' : c.vendedor === 'JOSE MARCIANO' ? 'Marciano' : 'Parceria';
+
+        return `
+          <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="py-3 px-4 font-mono text-slate-400 font-bold">${c.id}</td>
+            <td class="py-3 px-4 font-bold text-slate-700">${c.month || '2026'}</td>
+            <td class="py-3 px-4 font-black text-slate-900">${safeName}</td>
+            <td class="py-3 px-4">
+              <span class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold ${
+                c.vendedor === 'RODRIGO ABDON' ? 'bg-sky-100 text-sky-800' : c.vendedor === 'JOSE MARCIANO' ? 'bg-emerald-100 text-emerald-800' : 'bg-purple-100 text-purple-800'
+              }">${sellerShort}</span>
+            </td>
+            <td class="py-3 px-4 text-right font-black text-emerald-700 text-sm">
+              R$ ${Number(c.mrr).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </td>
+            <td class="py-3 px-4 text-center">
+              <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-black px-2 py-0.5 rounded-full">
+                Vigente
+              </span>
+            </td>
+            <td class="py-3 px-4 text-center">
+              <div class="flex items-center justify-center gap-1.5">
+                <button onclick="openEditContractModal('${c.id}')" title="Editar Contrato" class="text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded-lg text-xs font-bold transition">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button onclick="deleteContractById('${c.id}')" title="Excluir Contrato" class="text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-2 py-1 rounded-lg text-xs font-bold transition">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // RENDERIZADOR 4: SERVIÇOS & LEGALIZAÇÃO
+    function isServiceFinished(s) {
+      if (!s || !s.stages) return false;
+      const keys = ['viabilidade', 'dbe', 'jucesp', 'prefeitura'];
+      return keys.every(k => s.stages[k] === 'Concluído' || s.stages[k] === 'N/A');
+    }
+
+    function renderServices() {
+      const tbody = document.getElementById('services-table-body');
+      const badgeCount = document.getElementById('badge-services-count');
+      const filterStatus = document.getElementById('services-status-filter')?.value || 'ALL';
+      const searchTerm = (document.getElementById('services-search-input')?.value || '').toLowerCase().trim();
+
+      if (badgeCount) badgeCount.innerText = services.length;
+      if (!tbody) return;
+
+      let filtered = services.filter(s => {
+        if (currentSellerFilter !== "TODOS" && s.vendedor !== currentSellerFilter) return false;
+
+        const finished = isServiceFinished(s);
+        if (filterStatus === 'PENDING' && finished) return false;
+        if (filterStatus === 'COMPLETED' && !finished) return false;
+        if (filterStatus === 'INVOICED' && s.financialStatus !== 'ENVIADO') return false;
+
+        if (searchTerm) {
+          const matchCompany = (s.company || '').toLowerCase().includes(searchTerm);
+          const matchType = (s.serviceType || '').toLowerCase().includes(searchTerm);
+          const matchProtocol = (s.protocol || '').toLowerCase().includes(searchTerm);
+          const matchSeller = (s.vendedor || '').toLowerCase().includes(searchTerm);
+          if (!matchCompany && !matchType && !matchProtocol && !matchSeller) return false;
+        }
+
+        return true;
+      });
+
+      tbody.innerHTML = filtered.map(s => {
+        const finished = isServiceFinished(s);
+        const sellerShort = s.vendedor === 'RODRIGO ABDON' ? 'Rodrigo' : s.vendedor === 'JOSE MARCIANO' ? 'Marciano' : 'Ambos';
+
+        return `
+          <tr class="hover:bg-slate-50 transition border-b border-slate-100 ${finished ? 'bg-emerald-50/20' : ''}">
+            <td class="py-3 px-3">
+              <div class="flex items-center gap-1.5">
+                <span class="font-black text-slate-900 ${finished ? 'text-emerald-800' : ''}">${s.company}</span>
+                ${finished ? '<span class="text-[9px] font-black bg-emerald-100 text-emerald-800 px-1 rounded">100%</span>' : ''}
+              </div>
+              <div class="flex items-center gap-1 mt-0.5">
+                <span class="text-[9px] font-bold text-slate-400">REDESIM:</span>
+                <input type="text" value="${s.protocol || ''}" placeholder="SPP26..." onchange="updateServiceProtocol('${s.id}', this.value)" class="text-[10px] font-mono px-1 py-0.5 bg-slate-100 border border-slate-200 rounded w-28 focus:bg-white focus:outline-none focus:ring-1 focus:ring-violet-500">
+              </div>
+            </td>
+            <td class="py-3 px-3 font-medium text-slate-700">${s.serviceType}</td>
+            <td class="py-3 px-3">
+              <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-violet-100 text-violet-800">${sellerShort}</span>
+            </td>
+            ${renderStageButton(s.id, 'viabilidade', s.stages?.viabilidade)}
+            ${renderStageButton(s.id, 'dbe', s.stages?.dbe)}
+            ${renderStageButton(s.id, 'jucesp', s.stages?.jucesp)}
+            ${renderStageButton(s.id, 'prefeitura', s.stages?.prefeitura)}
+            ${renderStageButton(s.id, 'orgao', s.stages?.orgao)}
+            <td class="py-3 px-3 text-right font-black text-slate-900">
+              R$ ${Number(s.value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </td>
+            <td class="py-3 px-3 text-center">
+              <button onclick="toggleServiceFinancial('${s.id}')" class="text-[10px] font-black px-2 py-1 rounded-xl transition ${
+                s.financialStatus === 'ENVIADO' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300'
+              }">
+                ${s.financialStatus === 'ENVIADO' ? '💰 Faturado' : '⏳ Pendente'}
+              </button>
+            </td>
+            <td class="py-3 px-3 text-center">
+              <div class="flex items-center justify-center gap-1">
+                <button onclick="openEditServiceModal('${s.id}')" title="Editar Serviço" class="text-violet-700 hover:text-violet-900 bg-violet-50 hover:bg-violet-100 px-2 py-1 rounded-lg text-xs font-bold transition">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button onclick="deleteServiceById('${s.id}')" title="Excluir Serviço" class="text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-2 py-1 rounded-lg text-xs font-bold transition">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderStageButton(serviceId, stageKey, status = "Não Iniciado") {
+      let bg = "bg-slate-100 text-slate-600 border-slate-200";
+      if (status === "Concluído") bg = "bg-emerald-100 text-emerald-800 border-emerald-300 font-extrabold";
+      if (status === "Em Andamento") bg = "bg-amber-100 text-amber-800 border-amber-300 font-bold";
+      if (status === "N/A") bg = "bg-slate-50 text-slate-400 border-dashed border-slate-200";
+
+      return `
+        <td class="py-3 px-2 text-center">
+          <button onclick="cycleServiceStage('${serviceId}', '${stageKey}')" class="text-[10px] px-2 py-0.5 rounded-md border ${bg} transition active:scale-95">
+            ${status}
+          </button>
+        </td>
+      `;
+    }
+
+    function cycleServiceStage(serviceId, stageKey) {
+      const s = services.find(x => x.id === serviceId);
+      if (!s || !s.stages) return;
+      const order = ["Não Iniciado", "Em Andamento", "Concluído", "N/A"];
+      const current = s.stages[stageKey] || "Não Iniciado";
+      const nextIdx = (order.indexOf(current) + 1) % order.length;
+      s.stages[stageKey] = order[nextIdx];
+
+      saveToLocalStorage(true);
+      renderServices();
+      renderFinancialConsolidated();
+    }
+
+    function toggleServiceFinancial(serviceId) {
+      const s = services.find(x => x.id === serviceId);
+      if (!s) return;
+      s.financialStatus = s.financialStatus === "ENVIADO" ? "PENDENTE" : "ENVIADO";
+      saveToLocalStorage(true);
+      renderServices();
+      renderFinancialConsolidated();
+      initOrUpdateCharts();
+      showToast(`Status financeiro de ${s.company} atualizado!`);
+    }
+
+    function updateServiceProtocol(serviceId, newProtocol) {
+      const s = services.find(x => x.id === serviceId);
+      if (!s) return;
+      s.protocol = newProtocol.trim();
+      saveToLocalStorage(true);
+      showToast("Protocolo REDESIM salvo!");
+    }
+
+    // RENDERIZADOR 5: FINANCEIRO & ENTREGAS CONSOLIDADO
+    function renderFinancialConsolidated() {
+      const metricGlobal = document.getElementById('fin-metric-global');
+      const metricMrr = document.getElementById('fin-metric-mrr');
+      const metricInvoiced = document.getElementById('fin-metric-services-invoiced');
+      const metricPending = document.getElementById('fin-metric-services-pending');
+      const ledgerBody = document.getElementById('financial-ledger-body');
+
+      const totalMRR = contracts.reduce((acc, c) => acc + (Number(c.mrr) || 0), 0);
+      const invoicedServices = services.filter(s => s.financialStatus === "ENVIADO");
+      const totalServicesInvoiced = invoicedServices.reduce((acc, s) => acc + (Number(s.value) || 0), 0);
+      const pendingServices = services.filter(s => s.financialStatus !== "ENVIADO");
+      const totalServicesPending = pendingServices.reduce((acc, s) => acc + (Number(s.value) || 0), 0);
+
+      const globalRevenue = totalMRR + totalServicesInvoiced;
+
+      if (metricGlobal) metricGlobal.innerText = `R$ ${globalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      if (metricMrr) metricMrr.innerText = `R$ ${totalMRR.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      if (metricInvoiced) metricInvoiced.innerText = `R$ ${totalServicesInvoiced.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      if (metricPending) metricPending.innerText = `R$ ${totalServicesPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+
+      if (!ledgerBody) return;
+
+      const items = [
+        ...contracts.map(c => ({
+          refId: c.id,
+          category: "contract",
+          type: "MENSALIDADE (MRR)",
+          company: getSafeCompanyName(c),
+          seller: c.vendedor,
+          value: Number(c.mrr) || 0,
+          status: "FATURADO / ATIVO"
+        })),
+        ...services.map(s => ({
+          refId: s.id,
+          category: "service",
+          type: "SERVIÇO PONTUAL",
+          company: `${s.company} (${s.serviceType})`,
+          seller: s.vendedor,
+          value: Number(s.value) || 0,
+          status: s.financialStatus === "ENVIADO" ? "FATURADO / ENVIADO" : "PENDENTE COBRANÇA"
+        }))
+      ];
+
+      ledgerBody.innerHTML = items.map(it => `
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+          <td class="py-2.5 px-4">
+            <span class="text-[10px] font-black px-2 py-0.5 rounded ${it.type.includes('MRR') ? 'bg-emerald-100 text-emerald-800' : 'bg-violet-100 text-violet-800'}">
+              ${it.type}
+            </span>
+          </td>
+          <td class="py-2.5 px-4 font-bold text-slate-800">${it.company}</td>
+          <td class="py-2.5 px-4 text-slate-600">${it.seller}</td>
+          <td class="py-2.5 px-4 text-right font-black text-slate-900">
+            R$ ${it.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          </td>
+          <td class="py-2.5 px-4 text-center">
+            <span class="text-[10px] font-black px-2 py-0.5 rounded-full ${it.status.includes('FATURADO') ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">
+              ${it.status}
+            </span>
+          </td>
+          <td class="py-2.5 px-4 text-center">
+            <div class="flex items-center justify-center gap-1.5">
+              <button onclick="handleLedgerActionEdit('${it.category}', '${it.refId}')" title="Editar Registro" class="text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded-lg text-xs font-bold transition">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="handleLedgerActionDelete('${it.category}', '${it.refId}')" title="Excluir Registro" class="text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-2 py-1 rounded-lg text-xs font-bold transition">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openEditLeadModal(leadId) {
+      const l = leads.find(x => x.id === leadId);
+      if (!l) return;
+
+      document.getElementById('edit-lead-id').value = l.id;
+      document.getElementById('edit-lead-name').value = l.name || '';
+      document.getElementById('edit-lead-company').value = l.company || '';
+      document.getElementById('edit-lead-phone').value = l.phone || '';
+      document.getElementById('edit-lead-seller').value = l.seller || 'RODRIGO ABDON';
+      document.getElementById('edit-lead-mrr').value = l.expectedValue || 700;
+      document.getElementById('edit-lead-temp').value = l.temperature || 'quente';
+      document.getElementById('edit-lead-stage').value = l.stage || 'contato';
+      document.getElementById('edit-lead-notes').value = l.notes || '';
+
+      document.getElementById('modal-edit-lead')?.classList.remove('hidden');
+    }
+
+    function closeEditLeadModal() {
+      document.getElementById('modal-edit-lead')?.classList.add('hidden');
+    }
+
+    function handleSaveEditedLead(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-lead-id').value;
+      const l = leads.find(x => x.id === id);
+      if (!l) return;
+
+      l.name = document.getElementById('edit-lead-name').value.trim();
+      l.company = document.getElementById('edit-lead-company').value.trim();
+      l.phone = document.getElementById('edit-lead-phone').value.trim();
+      l.seller = document.getElementById('edit-lead-seller').value;
+      l.expectedValue = parseFloat(document.getElementById('edit-lead-mrr').value) || 0;
+      l.temperature = document.getElementById('edit-lead-temp').value;
+      l.stage = document.getElementById('edit-lead-stage').value;
+      l.notes = document.getElementById('edit-lead-notes').value.trim();
+
+      saveToLocalStorage(true);
+      renderAllViews();
+      closeEditLeadModal();
+      showToast("Dados do lead atualizados com sucesso!");
+    }
+
+    function deleteCurrentLead() {
+      const id = document.getElementById('edit-lead-id').value;
+      deleteLeadById(id);
+      closeEditLeadModal();
+    }
+
+    function deleteLeadById(id) {
+      const l = leads.find(x => x.id === id);
+      const companyName = l ? l.company : "Lead";
+      leads = leads.filter(x => x.id !== id);
+      saveToLocalStorage(true);
+      renderAllViews();
+      showToast(`${companyName} removido da lista comercial.`);
+    }
+
+    function openEditContractModal(contractId) {
+      const c = contracts.find(x => x.id === contractId);
+      if (!c) return;
+
+      document.getElementById('edit-contract-id').value = c.id;
+      document.getElementById('edit-contract-company').value = getSafeCompanyName(c);
+      document.getElementById('edit-contract-month').value = c.month || '01/2026';
+      document.getElementById('edit-contract-seller').value = c.vendedor || 'RODRIGO ABDON';
+      document.getElementById('edit-contract-mrr').value = c.mrr || 0;
+      document.getElementById('edit-contract-setup').value = c.setup || 0;
+
+      document.getElementById('modal-edit-contract')?.classList.remove('hidden');
+    }
+
+    function closeEditContractModal() {
+      document.getElementById('modal-edit-contract')?.classList.add('hidden');
+    }
+
+    function handleSaveEditedContract(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-contract-id').value;
+      const c = contracts.find(x => x.id === id);
+      if (!c) return;
+
+      const newCompany = document.getElementById('edit-contract-company').value.trim();
+      c.company = newCompany;
+      c.cliente = newCompany;
+      c.month = document.getElementById('edit-contract-month').value.trim();
+      c.vendedor = document.getElementById('edit-contract-seller').value;
+      c.mrr = parseFloat(document.getElementById('edit-contract-mrr').value) || 0;
+      c.setup = parseFloat(document.getElementById('edit-contract-setup').value) || 0;
+
+      saveToLocalStorage(true);
+      renderContracts();
+      renderFinancialConsolidated();
+      initOrUpdateCharts();
+      closeEditContractModal();
+      showToast("Contrato atualizado com sucesso!");
+    }
+
+    function deleteCurrentContract() {
+      const id = document.getElementById('edit-contract-id').value;
+      deleteContractById(id);
+      closeEditContractModal();
+    }
+
+    function deleteContractById(id) {
+      const c = contracts.find(x => x.id === id);
+      const companyName = c ? getSafeCompanyName(c) : "Contrato";
+      contracts = contracts.filter(x => x.id !== id);
+      saveToLocalStorage(true);
+      renderContracts();
+      renderFinancialConsolidated();
+      initOrUpdateCharts();
+      showToast(`Contrato de ${companyName} excluído.`);
+    }
+
+    function handleLedgerActionEdit(category, refId) {
+      if (category === 'contract') {
+        openEditContractModal(refId);
+      } else {
+        openEditServiceModal(refId);
+      }
+    }
+
+    function handleLedgerActionDelete(category, refId) {
+      if (category === 'contract') {
+        deleteContractById(refId);
+      } else {
+        deleteServiceById(refId);
+      }
+    }
+
+    function deleteServiceById(id) {
+      const s = services.find(x => x.id === id);
+      const name = s ? s.company : "Serviço";
+      services = services.filter(x => x.id !== id);
+      saveToLocalStorage(true);
+      renderServices();
+      renderFinancialConsolidated();
+      initOrUpdateCharts();
+      showToast(`Serviço de ${name} excluído.`);
+    }
+
+    function initOrUpdateCharts() {
+      const ctxMrr = document.getElementById('chart-mrr-evolution')?.getContext('2d');
+      const ctxSeller = document.getElementById('chart-seller-performance')?.getContext('2d');
+
+      if (ctxMrr) {
+        if (chartMrrEvolution) chartMrrEvolution.destroy();
+        chartMrrEvolution = new Chart(ctxMrr, {
+          type: 'line',
+          data: {
+            labels: ['Jan/26', 'Fev/26', 'Mar/26', 'Abr/26', 'Mai/26', 'Jun/26', 'Jul/26', 'Ago/26', 'Set/26'],
+            datasets: [{
+              label: 'MRR Cumulativo (R$)',
+              data: [850, 2250, 4200, 5550, 6300, 8250, 10850, 12500, 11894],
+              borderColor: '#9E1B2F',
+              backgroundColor: 'rgba(158, 27, 47, 0.08)',
+              fill: true,
+              tension: 0.35,
+              borderWidth: 3,
+              pointBackgroundColor: '#9E1B2F'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+
+      if (ctxSeller) {
+        if (chartSellerPerformance) chartSellerPerformance.destroy();
+
+        const rodrigoTotal = contracts.filter(c => c.vendedor === 'RODRIGO ABDON').reduce((a, b) => a + (Number(b.mrr) || 0), 0) +
+                             services.filter(s => s.vendedor === 'RODRIGO ABDON' && s.financialStatus === 'ENVIADO').reduce((a, b) => a + (Number(b.value) || 0), 0);
+
+        const marcianoTotal = contracts.filter(c => c.vendedor === 'JOSE MARCIANO').reduce((a, b) => a + (Number(b.mrr) || 0), 0) +
+                              services.filter(s => s.vendedor === 'JOSE MARCIANO' && s.financialStatus === 'ENVIADO').reduce((a, b) => a + (Number(b.value) || 0), 0);
+
+        const ambosTotal = contracts.filter(c => c.vendedor === 'AMBOS').reduce((a, b) => a + (Number(b.mrr) || 0), 0) +
+                           services.filter(s => s.vendedor === 'AMBOS' && s.financialStatus === 'ENVIADO').reduce((a, b) => a + (Number(b.value) || 0), 0);
+
+        chartSellerPerformance = new Chart(ctxSeller, {
+          type: 'bar',
+          data: {
+            labels: ['Rodrigo Abdon', 'José Marciano', 'Ambos (Parceria)'],
+            datasets: [{
+              label: 'Faturamento Total Faturado (R$)',
+              data: [rodrigoTotal, marcianoTotal, ambosTotal],
+              backgroundColor: ['#2B4366', '#10b981', '#8b5cf6'],
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+    }
+
+    let currentProposalData = null;
+
+    function openProposalModal() {
+      document.getElementById('modal-proposal-form')?.classList.remove('hidden');
+    }
+
+    function closeProposalModal() {
+      document.getElementById('modal-proposal-form')?.classList.add('hidden');
+    }
+
+    function closePrintProposalModal() {
+      document.getElementById('modal-proposal-print')?.classList.add('hidden');
+    }
+
+    function handleGenerateProposalSubmit(e) {
+      e.preventDefault();
+
+      const contact = document.getElementById('prop-contact').value.trim();
+      const company = document.getElementById('prop-company').value.trim();
+      const phone = document.getElementById('prop-phone').value.trim();
+      const email = document.getElementById('prop-email').value.trim();
+      const seller = document.getElementById('prop-seller').value;
+      const regime = document.getElementById('prop-regime').value;
+      const mrr = parseFloat(document.getElementById('prop-mrr').value) || 0;
+      const setup = parseFloat(document.getElementById('prop-setup').value) || 0;
+      const notes = document.getElementById('prop-notes').value.trim();
+
+      const servicesSelected = [];
+      if (document.getElementById('svc-fiscal').checked) servicesSelected.push("Escrituração Fiscal e Emissão de Guias de Tributos");
+      if (document.getElementById('svc-contabil').checked) servicesSelected.push("Contabilidade Completa, Balanços e Balancetes");
+      if (document.getElementById('svc-dp').checked) servicesSelected.push("Departamento Pessoal, Folha e eSocial");
+      if (document.getElementById('svc-obrigacoes').checked) servicesSelected.push("Transmissão de Obrigações Acessórias (SPED, DEFIS, DCTF)");
+      if (document.getElementById('svc-planejamento').checked) servicesSelected.push("Assessoria e Planejamento Tributário Contínuo");
+      if (document.getElementById('svc-bpo').checked) servicesSelected.push("BPO Financeiro e Gestão de Contas");
+
+      const propId = "PROP-2026-" + Math.floor(100 + Math.random() * 900);
+
+      currentProposalData = {
+        id: propId,
+        date: new Date().toLocaleDateString('pt-BR'),
+        contact,
+        company,
+        phone,
+        email,
+        seller,
+        regime,
+        mrr,
+        setup,
+        servicesSelected,
+        notes
+      };
+
+      document.getElementById('print-prop-id').innerText = propId;
+      document.getElementById('print-prop-date').innerText = currentProposalData.date;
+      document.getElementById('print-prop-company').innerText = company;
+      document.getElementById('print-prop-contact').innerText = contact;
+      document.getElementById('print-prop-phone').innerText = phone;
+      document.getElementById('print-prop-email').innerText = email || 'Não informado';
+      document.getElementById('print-prop-seller').innerText = seller;
+      document.getElementById('print-prop-regime').innerText = regime;
+      document.getElementById('print-prop-mrr').innerText = `R$ ${mrr.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      document.getElementById('print-prop-setup').innerText = `R$ ${setup.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      document.getElementById('print-prop-sign-client').innerText = contact;
+
+      const listContainer = document.getElementById('print-prop-services-list');
+      listContainer.innerHTML = servicesSelected.map(s => `
+        <div class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-600 text-[10px]"></i> ${s}</div>
+      `).join('');
+
+      const notesContainer = document.getElementById('print-prop-notes-container');
+      const notesEl = document.getElementById('print-prop-notes');
+      if (notes) {
+        notesContainer.classList.remove('hidden');
+        notesEl.innerText = notes;
+      } else {
+        notesContainer.classList.add('hidden');
+      }
+
+      const existing = leads.find(l => l.company.toLowerCase() === company.toLowerCase());
+      if (!existing) {
+        leads.unshift({
+          id: "lead-" + Date.now(),
+          name: contact,
+          company: company,
+          phone: phone,
+          email: email,
+          seller: seller,
+          stage: "proposta",
+          temperature: "quente",
+          expectedValue: mrr,
+          setupValue: setup,
+          notes: `Proposta ${propId} gerada e enviada.`,
+          nextActionDate: TODAY_STR
+        });
+        saveToLocalStorage(true);
+        renderAllViews();
+      }
+
+      closeProposalModal();
+      document.getElementById('modal-proposal-print')?.classList.remove('hidden');
+    }
+
+    function sendProposalWhatsApp() {
+      if (!currentProposalData) return;
+      const cleanPhone = (currentProposalData.phone || '').replace(/\D/g, '');
+      const msg = `Olá ${currentProposalData.contact}! Segue o orçamento da *Ética Contabilidade* para a *${currentProposalData.company}*:%0A%0A` +
+        `💼 *Honorários Mensais (MRR):* R$ ${currentProposalData.mrr.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%0A` +
+        `🛠️ *Taxa de Setup/Abertura:* R$ ${currentProposalData.setup.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%0A` +
+        `🏛️ *Regime:* ${currentProposalData.regime}%0A%0A` +
+        `Ficamos à disposição para darmos início!`;
+      
+      window.open(`https://wa.me/55${cleanPhone}?text=${msg}`, '_blank');
+    }
+
+    function applyCustomLogoUI() {
+      if (!customLogoBase64) return;
+      const headerContainer = document.getElementById('header-custom-logo-container');
+      const propContainer = document.getElementById('proposal-header-logo');
+      const previewImg = document.getElementById('custom-logo-preview');
+
+      if (previewImg) {
+        previewImg.src = customLogoBase64;
+        previewImg.classList.remove('hidden');
+      }
+
+      if (headerContainer) {
+        headerContainer.innerHTML = `<img src="${customLogoBase64}" alt="Ética Contabilidade" class="h-9 w-auto max-w-[180px] object-contain">`;
+      }
+      if (propContainer) {
+        propContainer.innerHTML = `<img src="${customLogoBase64}" alt="Ética Contabilidade" class="h-14 w-auto max-w-[220px] object-contain">`;
+      }
+    }
+
+    function handleCustomLogoUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        customLogoBase64 = e.target.result;
+        try {
+          localStorage.setItem(CUSTOM_LOGO_STORAGE_KEY, customLogoBase64);
+        } catch (err) {}
+        applyCustomLogoUI();
+        showToast("Logotipo do escritório atualizado!");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resetCustomLogo() {
+      customLogoBase64 = "";
+      localStorage.removeItem(CUSTOM_LOGO_STORAGE_KEY);
+      location.reload();
+    }
+
+    function openEditServiceModal(serviceId) {
+      const s = services.find(x => x.id === serviceId);
+      if (!s) return;
+
+      document.getElementById('edit-service-id').value = s.id;
+      document.getElementById('edit-service-company').value = s.company;
+      document.getElementById('edit-service-protocol').value = s.protocol || '';
+      document.getElementById('edit-service-type').value = s.serviceType;
+      document.getElementById('edit-service-seller').value = s.vendedor;
+      document.getElementById('edit-service-value').value = s.value;
+      document.getElementById('edit-service-finstatus').value = s.financialStatus || 'PENDENTE';
+      document.getElementById('edit-service-notes').value = s.notes || '';
+
+      document.getElementById('modal-edit-service')?.classList.remove('hidden');
+    }
+
+    function closeEditServiceModal() {
+      document.getElementById('modal-edit-service')?.classList.add('hidden');
+    }
+
+    function handleSaveEditedService(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-service-id').value;
+      const s = services.find(x => x.id === id);
+      if (!s) return;
+
+      s.company = document.getElementById('edit-service-company').value.trim();
+      s.protocol = document.getElementById('edit-service-protocol').value.trim();
+      s.serviceType = document.getElementById('edit-service-type').value.trim();
+      s.vendedor = document.getElementById('edit-service-seller').value;
+      s.value = parseFloat(document.getElementById('edit-service-value').value) || 0;
+      s.financialStatus = document.getElementById('edit-service-finstatus').value;
+      s.notes = document.getElementById('edit-service-notes').value.trim();
+
+      saveToLocalStorage(true);
+      renderServices();
+      renderFinancialConsolidated();
+      initOrUpdateCharts();
+      closeEditServiceModal();
+      showToast("Dados do serviço atualizados com sucesso!");
+    }
+
+    function deleteCurrentService() {
+      const id = document.getElementById('edit-service-id').value;
+      deleteServiceById(id);
+      closeEditServiceModal();
+    }
+
+    function openNewServiceModal() {
+      const defaultSeller = currentSellerFilter === "TODOS" ? "RODRIGO ABDON" : currentSellerFilter;
+      const sellerInput = document.getElementById('new-service-seller');
+      if (sellerInput) sellerInput.value = defaultSeller;
+
+      const compInput = document.getElementById('new-service-company');
+      const protInput = document.getElementById('new-service-protocol');
+      const typeInput = document.getElementById('new-service-type');
+      const valInput = document.getElementById('new-service-value');
+      const notesInput = document.getElementById('new-service-notes');
+
+      if (compInput) compInput.value = "";
+      if (protInput) protInput.value = "";
+      if (typeInput) typeInput.value = "Abertura de Empresa";
+      if (valInput) valInput.value = "1000.00";
+      if (notesInput) notesInput.value = "";
+
+      document.getElementById('modal-new-service')?.classList.remove('hidden');
+    }
+
+    function closeNewServiceModal() {
+      document.getElementById('modal-new-service')?.classList.add('hidden');
+    }
+
+    function handleCreateServiceSubmit(e) {
+      e.preventDefault();
+
+      const company = document.getElementById('new-service-company').value.trim();
+      const protocol = document.getElementById('new-service-protocol').value.trim();
+      const serviceType = document.getElementById('new-service-type').value.trim();
+      const seller = document.getElementById('new-service-seller').value;
+      const value = parseFloat(document.getElementById('new-service-value').value) || 0;
+      const financialStatus = document.getElementById('new-service-finstatus').value;
+      const notes = document.getElementById('new-service-notes').value.trim();
+
+      const newSrv = {
+        id: "SRV-2026-" + String(services.length + 1).padStart(3, '0'),
+        company: company,
+        protocol: protocol,
+        serviceType: serviceType || "Abertura de Empresa",
+        vendedor: seller,
+        value: value,
+        financialStatus: financialStatus,
+        notes: notes,
+        stages: { viabilidade: "Não Iniciado", dbe: "Não Iniciado", jucesp: "Não Iniciado", prefeitura: "Não Iniciado", orgao: "N/A" }
+      };
+
+      services.unshift(newSrv);
+      saveToLocalStorage(true);
+      renderServices();
+      renderFinancialConsolidated();
+      initOrUpdateCharts();
+      closeNewServiceModal();
+      showToast(`Serviço de ${company} cadastrado na esteira com sucesso!`);
+    }
+
+    function openLeadModal() {
+      document.getElementById('modal-lead-form')?.classList.remove('hidden');
+    }
+
+    function closeLeadModal() {
+      document.getElementById('modal-lead-form')?.classList.add('hidden');
+    }
+
+    function handleCreateLead(e) {
+      e.preventDefault();
+      const name = document.getElementById('lead-name').value.trim();
+      const company = document.getElementById('lead-company').value.trim();
+      const phone = document.getElementById('lead-phone').value.trim();
+      const seller = document.getElementById('lead-seller').value;
+      const mrr = parseFloat(document.getElementById('lead-mrr').value) || 700;
+      const temp = document.getElementById('lead-temp').value;
+      const notes = document.getElementById('lead-notes').value.trim();
+
+      leads.unshift({
+        id: "lead-" + Date.now(),
+        name,
+        company,
+        phone,
+        seller,
+        stage: "contato",
+        temperature: temp,
+        expectedValue: mrr,
+        setupValue: 0,
+        notes,
+        nextActionDate: TODAY_STR
+      });
+
+      saveToLocalStorage(true);
+      renderAllViews();
+      closeLeadModal();
+      showToast("Novo lead adicionado com sucesso!");
+    }
+
+    function exportContractsToCSV() {
+      const headers = "ID;MES_ANO;EMPRESA;VENDEDOR;MRR;SETUP\n";
+      const rows = contracts.map(c => 
+        `"${c.id}";"${c.month || '2026'}";"${getSafeCompanyName(c)}";"${c.vendedor}";"${c.mrr}";"${c.setup || 0}"`
+      ).join("\n");
+
+      const blob = new Blob(["\uFEFF" + headers + rows], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Vendas_Etica_Contabilidade_${TODAY_STR}.csv`;
+      a.click();
+      showToast("Planilha de vendas exportada!");
+    }
+
+    function handleImportSalesFile(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const content = e.target.result;
+          let added = 0;
+
+          if (file.name.endsWith('.json')) {
+            const data = JSON.parse(content);
+            const list = Array.isArray(data) ? data : (data.contracts || []);
+            list.forEach(item => {
+              contracts.push({
+                id: item.id || ("CTR-" + (contracts.length + 1)),
+                company: getSafeCompanyName(item),
+                vendedor: item.vendedor || "AMBOS",
+                mrr: parseFloat(item.mrr) || 0,
+                setup: parseFloat(item.setup) || 0,
+                month: item.month || "10/2026"
+              });
+              added++;
+            });
+          } else {
+            const lines = content.split('\n');
+            for (let i = 1; i < lines.length; i++) {
+              const line = lines[i].trim();
+              if (!line) continue;
+              const cols = line.split(';').map(c => c.replace(/^["']|["']$/g, '').trim());
+              if (cols.length >= 4) {
+                contracts.push({
+                  id: cols[0] || ("CTR-" + (contracts.length + 1)),
+                  month: cols[1] || "10/2026",
+                  company: cols[2] || "Cliente Importado",
+                  vendedor: cols[3] || "AMBOS",
+                  mrr: parseFloat(cols[4]) || 500,
+                  setup: parseFloat(cols[5]) || 0
+                });
+                added++;
+              }
+            }
+          }
+
+          saveToLocalStorage(true);
+          renderContracts();
+          renderFinancialConsolidated();
+          initOrUpdateCharts();
+          showToast(`${added} vendas importadas com sucesso!`);
+        } catch (err) {
+          showToast("Erro ao processar arquivo de vendas.");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    function openCloudModal() {
+      const roomInput = document.getElementById('cloud-room-id');
+      const firebaseUrlInput = document.getElementById('cloud-firebase-url');
+      if (roomInput) roomInput.value = cloudRoom;
+      if (firebaseUrlInput) firebaseUrlInput.value = cloudFirebaseUrl;
+      document.getElementById('modal-cloud')?.classList.remove('hidden');
+    }
+
+    function closeCloudModal() {
+      document.getElementById('modal-cloud')?.classList.add('hidden');
+    }
+
+    function saveCloudSettings() {
+      const roomVal = document.getElementById('cloud-room-id').value.trim();
+      const firebaseUrlVal = document.getElementById('cloud-firebase-url').value.trim();
+
+      if (roomVal) {
+        cloudRoom = roomVal;
+        localStorage.setItem(CLOUD_STORAGE_ROOM_KEY, cloudRoom);
+      }
+      if (firebaseUrlVal) {
+        cloudFirebaseUrl = firebaseUrlVal;
+        localStorage.setItem(CLOUD_FIREBASE_URL_KEY, cloudFirebaseUrl);
+      }
+
+      showToast("Configurações da nuvem salvas!");
+      uploadDataToCloud(true);
+    }
+
+    async function uploadDataToCloud(forceToast = false) {
+      if (isCloudSyncing) return;
+      isCloudSyncing = true;
+
+      const dot = document.getElementById('cloud-status-dot');
+      const textIndicator = document.getElementById('cloud-status-indicator');
+      const statusText = document.getElementById('cloud-status-text');
+
+      if (dot) dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-spin";
+      if (textIndicator) textIndicator.innerText = "Sincronizando...";
+
+      const payload = {
+        leads,
+        contracts,
+        services,
+        updatedAt: new Date().toISOString(),
+        timestamp: Date.now()
+      };
+
+      let success = false;
+      const endpoints = getCloudEndpoints(cloudRoom);
+
+      for (const ep of endpoints) {
+        try {
+          let resp;
+          if (ep.type === "firebase") {
+            resp = await fetch(ep.url, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+              signal: AbortSignal.timeout(5000)
+            });
+          } else {
+            resp = await fetch(ep.set, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+              signal: AbortSignal.timeout(4000)
+            });
+          }
+
+          if (resp && resp.ok) {
+            success = true;
+            break;
+          }
+        } catch (e) {
+          // Tenta o próximo endpoint
+        }
+      }
+
+      isCloudSyncing = false;
+      if (dot) dot.className = success ? "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" : "w-2.5 h-2.5 rounded-full bg-amber-400";
+      if (textIndicator) textIndicator.innerText = success ? "Nuvem Conectada" : "Aguardando Nuvem";
+      if (statusText) {
+        statusText.className = success ? "font-black text-emerald-700 flex items-center gap-1.5" : "font-black text-amber-700 flex items-center gap-1.5";
+        statusText.innerHTML = success 
+          ? `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sincronizado com Sucesso`
+          : `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Aguardando Rede / Nuvem`;
+      }
+
+      if (success) {
+        lastCloudTimestamp = payload.timestamp;
+        localStorage.setItem('etica_last_cloud_ts', String(payload.timestamp));
+        const lastTimeEl = document.getElementById('cloud-last-time-label');
+        if (lastTimeEl) lastTimeEl.innerText = new Date().toLocaleTimeString('pt-BR');
+        if (forceToast) showToast("Base sincronizada na nuvem com sucesso!");
+      } else if (forceToast) {
+        showToast("Dados salvos no aparelho! Conecte seu Firebase para sincronização multi-aparelho.");
+      }
+    }
+
+    async function pullDataFromCloud(isInitial = false, forceToast = false) {
+      if (isCloudSyncing) return;
+      const endpoints = getCloudEndpoints(cloudRoom);
+
+      for (const ep of endpoints) {
+        try {
+          const fetchUrl = ep.type === "firebase" ? ep.url : ep.get;
+          const resp = await fetch(fetchUrl, { 
+            cache: 'no-store', 
+            headers: { 'Accept': 'application/json' },
+            signal: AbortSignal.timeout(5000) 
+          });
+          if (!resp || !resp.ok) continue;
+
+          let data = await resp.json();
+          if (!data) continue;
+
+          if (data && data.value && typeof data.value === 'object') data = data.value;
+
+          if (data && typeof data === 'object') {
+            const ts = Number(data.timestamp) || 0;
+            if (ts > lastCloudTimestamp || isInitial || forceToast) {
+              let updated = false;
+
+              if (Array.isArray(data.contracts) && data.contracts.length > 0) {
+                contracts = data.contracts;
+                contracts.forEach(c => {
+                  c.company = getSafeCompanyName(c);
+                  c.cliente = c.company;
+                });
+                updated = true;
+              }
+
+              if (Array.isArray(data.services) && data.services.length > 0) {
+                services = data.services;
+                updated = true;
+              }
+
+              if (Array.isArray(data.leads) && data.leads.length > 0) {
+                leads = data.leads;
+                updated = true;
+              }
+
+              if (updated) {
+                lastCloudTimestamp = ts || Date.now();
+                localStorage.setItem('etica_last_cloud_ts', String(lastCloudTimestamp));
+                saveToLocalStorage(false);
+                renderAllViews();
+                
+                const dot = document.getElementById('cloud-status-dot');
+                const textIndicator = document.getElementById('cloud-status-indicator');
+                if (dot) dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse";
+                if (textIndicator) textIndicator.innerText = "Nuvem Conectada";
+
+                if (forceToast) showToast("Dados mais recentes baixados da nuvem!");
+                break;
+              }
+            }
+          }
+        } catch (err) {
+          // Continua para o próximo endpoint
+        }
+      }
+    }
+
+    function downloadBackupFile() {
+      const payload = {
+        leads,
+        contracts,
+        services,
+        exportedAt: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Backup_Etica_Contabilidade_${TODAY_STR}.json`;
+      a.click();
+      showToast("Backup baixado com sucesso!");
+    }
+
+    function importBackupFile(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (Array.isArray(data.contracts)) contracts = data.contracts;
+          if (Array.isArray(data.services)) services = data.services;
+          if (Array.isArray(data.leads)) leads = data.leads;
+
+          saveToLocalStorage(true);
+          renderAllViews();
+          showToast("Backup restaurado e sincronizado com sucesso!");
+        } catch (err) {
+          showToast("Arquivo de backup inválido.");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    // Polling contínuo da nuvem a cada 5 segundos
+    setInterval(() => {
+      pullDataFromCloud();
+    }, 5000);
+
+    window.onload = async function() {
+      loadFromLocalStorage();
+      applyCustomLogoUI();
+      renderAllViews();
+      
+      const isAuthenticated = checkExistingAuthSession();
+      if (!isAuthenticated) {
+        const gate = document.getElementById('login-gate');
+        if (gate) gate.classList.remove('hidden');
+      }
+
+      await pullDataFromCloud(true);
+    };
+  </script>
+</body>
+</html>
